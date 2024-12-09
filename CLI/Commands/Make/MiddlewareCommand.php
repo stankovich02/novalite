@@ -15,6 +15,9 @@ class MiddlewareCommand implements CommandInterface
         $this->printHelp($args, 'Create a new HTTP middleware class', 'make:middleware [middleware_name]');
         $middlewareName =  count($args) < 1 ? readline(" Enter middleware name: ") : $args[0];
         $middlewarePath = 'app/Middlewares/' . $middlewareName . '.php';
+        if (!is_dir('app/Middlewares')) {
+            mkdir('app/Middlewares');
+        }
         if (file_exists($middlewarePath)) {
             $this->printCard('ERROR', 'Middleware already exists.');
             return;

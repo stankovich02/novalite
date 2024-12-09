@@ -71,6 +71,9 @@ class MigrationCommand implements CommandInterface
         else{
             $folderPath = 'database/migrations';
         }
+        if (!is_dir(Application::$ROOT_DIR . "\\" . $folderPath)) {
+            mkdir(Application::$ROOT_DIR . "\\" . $folderPath, recursive: true);
+        }
         $migrationPath = $folderPath . '/' . date('Y_m_d_His') . '_' . $newMigrationName . '.php';
         $files = scandir(Application::$ROOT_DIR . "\\" . $folderPath);
         if(!$files){

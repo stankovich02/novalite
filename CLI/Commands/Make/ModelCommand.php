@@ -23,6 +23,9 @@ class ModelCommand implements CommandInterface
         $this->printHelp($args, 'Create a new model class', 'make:model [model_name] [options]', $options);
         $modelName =  count($args) < 1 ? readline(" Enter model name: ") : $args[0];
         $modelPath = 'app/Models/' . $modelName . '.php';
+        if (!is_dir('app/Models')) {
+            mkdir('app/Models');
+        }
         if (file_exists($modelPath)) {
             $this->printCard('ERROR', 'Model already exists.');
             return;
