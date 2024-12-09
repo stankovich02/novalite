@@ -87,7 +87,7 @@ class Mason
             'log' => Config::get('logging')
         ];
 
-        $app = new Application(dirname(__DIR__, 2),$config);
+        $app = new Application(dirname(__DIR__, 3),$config);
         $commandClass = "NovaLite\\CLI\\Commands\\" . ucfirst($command) . "Command";
         if(str_contains($command, 'migrate:')) {
             [$migrate, $operation] = explode(':', $command);

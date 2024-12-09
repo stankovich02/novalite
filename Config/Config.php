@@ -14,7 +14,7 @@ class Config
 
         if(!isset(self::$config[$keys[0]])){
             //kada se postavi na packagist, onda prepravoti na 4
-           $path = dirname(__DIR__, 2) . "/config/{$keys[0]}.php";
+           $path = Application::$ROOT_DIR . "/config/{$keys[0]}.php";
            if(file_exists($path)) {
                self::$config[$keys[0]] = require $path;
            }

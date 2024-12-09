@@ -3,6 +3,7 @@
 namespace NovaLite\CLI\Commands;
 
 use Dotenv\Dotenv;
+use NovaLite\Application;
 use NovaLite\CLI\PrintHelp;
 
 class DbCommand implements CommandInterface
@@ -12,7 +13,7 @@ class DbCommand implements CommandInterface
     {
         $this->printHelp($args, 'Display basic information about your database', 'db [options]');
 
-        $dotenv = Dotenv::createImmutable(dirname(__DIR__, 3));
+        $dotenv = Dotenv::createImmutable(Application::$ROOT_DIR);
         $dotenv->load();
 
         $max = 100;

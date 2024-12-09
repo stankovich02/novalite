@@ -24,8 +24,8 @@ class RouteListCommand implements CommandInterface
             'log' => Config::get('logging')
         ];
 
-        require_once dirname(__DIR__,3) . '/bootstrap/app.php';
-        require_once dirname(__DIR__,3) . '/routing/routes.php';
+        require_once Application::$ROOT_DIR . '/bootstrap/app.php';
+        require_once Application::$ROOT_DIR . '/routing/routes.php';
 
         $routes = Router::getRoutes();
         echo " \033[32mMethod\t\tPath\033[0m ";
