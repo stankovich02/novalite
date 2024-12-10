@@ -20,7 +20,7 @@ class Migrator
                 'log' => Config::get('logging')
             ];
 
-            $app = new Application(dirname(__DIR__, 3),$config);
+            $app = new Application(dirname(__DIR__, 5),$config);
         }
         self::applyMigrations($path);
     }
@@ -120,7 +120,7 @@ class Migrator
             'log' => Config::get('logging')
         ];
 
-        $app = new Application(dirname(__DIR__, 3),$config);
+        $app = new Application(dirname(__DIR__, 5),$config);
         self::$isDroppedAll = true;
         $instance = new self();
         $tables = Application::$app->db->query("SHOW TABLES")->fetchAll();
@@ -145,7 +145,7 @@ class Migrator
             'log' => Config::get('logging')
         ];
 
-        $app = new Application(dirname(__DIR__, 3),$config);
+        $app = new Application(dirname(__DIR__, 5),$config);
         $instance = new self();
         if(!$all){
             $lastInsertedMigrationDate = Database::select("SELECT created_at FROM migrations ORDER BY id DESC LIMIT 1")[0]->created_at;

@@ -16,7 +16,7 @@ class MigrationCommand implements CommandInterface
     use PrintCard;
     public function handle($args = [], string $modelName = null): void
     {
-        require_once dirname(__DIR__,3) . '/vendor/autoload.php';
+        require_once Application::$ROOT_DIR . '/vendor/autoload.php';
         $options = [
             '--create=TABLE_NAME' => 'The table to be created',
             '--table=TABLE_NAME' => 'The table to be modified',
