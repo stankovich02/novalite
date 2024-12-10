@@ -13,7 +13,8 @@ class Config
         $keys = explode('.', $key);
 
         if(!isset(self::$config[$keys[0]])){
-           $path = dirname(__DIR__,4) . "/config/{$keys[0]}.php";
+            //kada se postavi na packagist, onda prepravoti na 4
+           $path = dirname(__DIR__, 2) . "/config/{$keys[0]}.php";
            if(file_exists($path)) {
                self::$config[$keys[0]] = require $path;
            }

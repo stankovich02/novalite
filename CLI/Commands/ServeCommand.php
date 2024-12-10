@@ -2,8 +2,6 @@
 
 namespace NovaLite\CLI\Commands;
 
-use NovaLite\Application;
-
 class ServeCommand implements CommandInterface
 {
     public function handle($args) : void
@@ -32,7 +30,7 @@ class ServeCommand implements CommandInterface
              echo "The port to serve the application on\n";
              exit(0);
         }
-        $publicDir = Application::$ROOT_DIR . '/public';
+        $publicDir = __DIR__ . '/../../../public';
 
         if (!is_dir($publicDir)) {
             echo "Error: The public folder does not exist.\n";

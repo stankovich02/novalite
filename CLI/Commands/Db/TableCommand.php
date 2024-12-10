@@ -14,9 +14,9 @@ class TableCommand implements CommandInterface
     use PrintHelp;
     public function handle($args): void
     {
-        require_once Application::$ROOT_DIR . '/vendor/autoload.php';
+        require_once dirname(__DIR__,4) . '/vendor/autoload.php';
 
-        $dotenv = Dotenv::createImmutable(Application::$ROOT_DIR);
+        $dotenv = Dotenv::createImmutable(dirname(__DIR__,4));
         $dotenv->load();
         $this->printHelp($args,'Display information about the given database table','db:table [table_name]');
         $max = 150;

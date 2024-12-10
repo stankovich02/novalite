@@ -2,7 +2,6 @@
 
 namespace NovaLite\CLI\Commands\Db;
 
-use NovaLite\Application;
 use NovaLite\CLI\Commands\CommandInterface;
 use NovaLite\CLI\PrintCard;
 use NovaLite\CLI\PrintHelp;
@@ -17,7 +16,7 @@ class SeedCommand implements CommandInterface
         ];
         $this->printHelp($args, 'Seed the database with records', 'db:seed [options]', $options);
         $seeder = isset($args[0]) ? explode('=', $args[0])[1] : 'DatabaseSeeder';
-        if (!file_exists(Application::$ROOT_DIR . '/database/seeders/' . $seeder . '.php')) {
+        if (!file_exists(dirname(__DIR__, 4) . '/database/seeders/' . $seeder . '.php')) {
             $this->printCard('ERROR', 'Seeder class not found.');
             return;
         }

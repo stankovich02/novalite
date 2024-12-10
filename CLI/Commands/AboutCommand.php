@@ -3,7 +3,6 @@
 namespace NovaLite\CLI\Commands;
 
 use Dotenv\Dotenv;
-use NovaLite\Application;
 use NovaLite\CLI\PrintHelp;
 
 class AboutCommand implements CommandInterface
@@ -12,7 +11,7 @@ class AboutCommand implements CommandInterface
     public function handle($args) : void
     {
         $this->printHelp($args, 'Display basic information about your application', 'about [options]');
-        $dotenv = Dotenv::createImmutable(Application::$ROOT_DIR);
+        $dotenv = Dotenv::createImmutable(dirname(__DIR__, 3));
         $dotenv->load();
 
         $max = 100;

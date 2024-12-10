@@ -16,7 +16,7 @@ class MigrationCommand implements CommandInterface
     use PrintCard;
     public function handle($args = [], string $modelName = null): void
     {
-        require_once Application::$ROOT_DIR . '/vendor/autoload.php';
+        require_once dirname(__DIR__,3) . '/vendor/autoload.php';
         $options = [
             '--create=TABLE_NAME' => 'The table to be created',
             '--table=TABLE_NAME' => 'The table to be modified',
@@ -72,7 +72,7 @@ class MigrationCommand implements CommandInterface
             $folderPath = 'database/migrations';
         }
         if (!is_dir(Application::$ROOT_DIR . "\\" . $folderPath)) {
-            mkdir(Application::$ROOT_DIR . "\\" . $folderPath, recursive: true);
+            mkdir(Application::$ROOT_DIR . "\\" . $folderPath, 0777, true);
         }
         $migrationPath = $folderPath . '/' . date('Y_m_d_His') . '_' . $newMigrationName . '.php';
         $files = scandir(Application::$ROOT_DIR . "\\" . $folderPath);

@@ -22,6 +22,9 @@ class SeederCommand implements CommandInterface
             $seederName =  count($args) < 1 ? readline(" Enter seeder name: ") : $args[0];
         }
         $seederPath = 'database/seeders/' . $seederName . '.php';
+        if (!is_dir('database/seeders')) {
+            mkdir('database/seeders');
+        }
         if (file_exists($seederPath)) {
             $this->printCard('ERROR', 'Seeder already exists.');
             return;

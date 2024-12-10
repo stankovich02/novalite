@@ -28,6 +28,9 @@ class ControllerCommand implements CommandInterface
             $controllerName =  count($args) < 1 ? readline(" Enter controller name: ") : $args[0];
         }
         $controllerPath = 'app/Controllers/' . $controllerName . '.php';
+        if (!is_dir('app/Controllers')) {
+            mkdir('app/Controllers');
+        }
         if (file_exists($controllerPath)) {
             $this->printCard('ERROR', 'Controller already exists.');
             return;
