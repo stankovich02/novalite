@@ -36,7 +36,6 @@ class MySQL implements QueryBuilderInterface
 
         return $this;
     }
-    //testirati Closure pored standardnog Join-a
     public function join(string $table, string|\Closure $first, string $operator, string $second) : self
     {
         if($first instanceof \Closure) {
@@ -60,7 +59,6 @@ class MySQL implements QueryBuilderInterface
 
         return $this;
     }
-    //testirati dva where spojena
     public function where(string $column, string $operator, string $value) : self
     {
         $clause = str_contains($this->query, 'WHERE') ? ' AND' : ' WHERE';

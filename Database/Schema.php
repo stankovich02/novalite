@@ -24,7 +24,6 @@ class Schema
     public static function getColumnsData(string $table) : array
     {
         $columns = Database::statement("SHOW COLUMNS FROM $table")->fetchAll();
-        //make an array with keys field name,type,max_length,nullable,default,primary
         return array_map(fn($column) => ['field' => $column->Field, 'type' => $column->Type, 'nullable' => $column->Null, 'default' => $column->Default, 'primary' => $column->Key === 'PRI'], $columns);
     }
     public static function getPrimaryKey(string $table) : string

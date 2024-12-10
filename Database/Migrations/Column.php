@@ -103,7 +103,6 @@ class Column
         $lastColumn = end($columns);
         $columnName = preg_match('/`(\w+)`/', $lastColumn, $matches) ? $matches[1] : null;
 
-        // Remove common indexes before adding unique
         if ($columnName) {
             $this->removeCommonIndexes($columnName, $indexes);
             $this->addUniqueKey($columnName, $uniqueKeys, $name);

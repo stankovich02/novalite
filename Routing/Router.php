@@ -281,24 +281,19 @@ class Router{
     }
     private function callControllerMethod($controller, $method, $params = [])
     {
-        // Koristi ReflectionMethod da saznaš parametre metode
         $reflectionMethod = new \ReflectionMethod($controller, $method);
 
-        // Svi mogući parametri koji će biti prosleđeni
         $allParams = ['request' => $this->request, 'response' => $this->response];
 
-        // Dinamički dodaj sve parametre iz URL-a
         foreach ($params as $index => $value) {
             $allParams['param_' . $index] = $value;
         }
 
-        // Kreiraj listu parametara za funkciju u ispravnom redosledu
         $finalParams = [];
         foreach ($reflectionMethod->getParameters() as $parameter) {
             $name = $parameter->getName();
             $type = $parameter->getType();
 
-            // U zavisnosti od tipa parametra, odaberi odgovarajuću vrednost
             if ($type && !$type->isBuiltin()) {
                 $typeName = $type->getName();
                 if ($typeName === 'NovaLite\Http\Request') {
@@ -312,12 +307,10 @@ class Router{
                     $finalParams[] = $class;
                 }
             } else {
-                // Ako nije klasa, smatraj ga dinamičkim parametrom (npr. {id})
                 $finalParams[] = array_shift($params);
             }
         }
 
-// Pozovi metodu sa ispravnim parametrima
         return $reflectionMethod->invokeArgs($controller, $finalParams);
     }
     public function getRouteName($name, $parameters) : string|bool
