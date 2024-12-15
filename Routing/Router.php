@@ -105,7 +105,6 @@ class Router{
     public static function middleware(array|string $middlewares) : Router
     {
         self::$router->groupOptions['middlewares'] = $middlewares;
-        var_dump(self::$router->groupOptions['middlewares']);
 
         return self::$router;
     }
@@ -226,8 +225,6 @@ class Router{
             }
 
         }
-        echo "Method: $method";
-        echo "Path: $path";
         $action = $this->routes[$method][$path] ?? false;
         if(!$action){
           throw new MethodNotSupportedException();
@@ -246,7 +243,6 @@ class Router{
         if(count($controller->getMiddlewares()) > 0){
             foreach ($controller->getMiddlewares() as $middleware => $value) {
                 if (!is_array($value)) {
-                    echo "Middleware: $middleware";
                     $middlewareInstance = new $middleware();
                     $middlewareInstance->handle();
                 } else {
