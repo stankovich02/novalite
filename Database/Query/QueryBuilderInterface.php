@@ -75,6 +75,8 @@ interface QueryBuilderInterface
     function with($instance,...$relations) : array;
     function get() : array;
     function first() : mixed;
+    function getQuery() : string;
+    function getParameters() : array;
 
 
 }
