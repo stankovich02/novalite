@@ -185,131 +185,161 @@ class MySQL implements QueryBuilderInterface
     }
     public function whereNone(array $columns, string $operator, string $value) : self
     {
-        $this->query .= str_contains($this->query, 'WHERE') ? ' NOT' : ' WHERE NOT';
-        foreach ($columns as $column) {
-            $this->query .= "$column $operator '$value' OR ";
-        }
-        $this->query = rtrim($this->query, ' OR ');
+        $clause = str_contains($this->query, 'WHERE') ? ' AND NOT (' : ' WHERE NOT (';
+        $this->query .= $clause;
 
+        $conditions = [];
+        foreach ($columns as $key => $column) {
+            $placeholder = ":{$column}_none_{$key}";
+            $conditions[] = "$column $operator $placeholder";
+            $this->parameters[$placeholder] = $value;
+        }
+
+        $this->query .= implode(' OR ', $conditions) . ')';
         return $this;
     }
+
     public function whereLike(string $column, string $value) : self
     {
-        if(!str_contains($this->query, 'WHERE')) {
-            $this->query .= " WHERE $column LIKE '%$value%'";
-        } else {
-            $this->query .= " AND $column LIKE '%$value%'";
-        }
+        $clause = str_contains($this->query, 'WHERE') ? ' AND' : ' WHERE';
+        $placeholder = ":{$column}_like";
+        $this->query .= "$clause $column LIKE $placeholder";
+        $this->parameters[$placeholder] = "%$value%";
 
         return $this;
     }
+
     public function orWhereLike(string $column, string $value) : self
     {
-        $this->query .= " OR $column LIKE '%$value%'";
+        $placeholder = ":{$column}_like";
+        $this->query .= " OR $column LIKE $placeholder";
+        $this->parameters[$placeholder] = "%$value%";
 
         return $this;
     }
+
     public function whereNotLike(string $column, string $value) : self
     {
-        if(!str_contains($this->query, 'WHERE')) {
-            $this->query .= " WHERE $column NOT LIKE '%$value%'";
-        } else {
-            $this->query .= " AND $column NOT LIKE '%$value%'";
-        }
+        $clause = str_contains($this->query, 'WHERE') ? ' AND' : ' WHERE';
+        $placeholder = ":{$column}_not_like";
+        $this->query .= "$clause $column NOT LIKE $placeholder";
+        $this->parameters[$placeholder] = "%$value%";
 
         return $this;
     }
+
     public function orWhereNotLike(string $column, string $value) : self
     {
-        $this->query .= " OR $column NOT LIKE '%$value%'";
+        $placeholder = ":{$column}_not_like";
+        $this->query .= " OR $column NOT LIKE $placeholder";
+        $this->parameters[$placeholder] = "%$value%";
 
         return $this;
     }
+
     public function whereBetween(string $column, string $value1, string $value2) : self
     {
-        if(!str_contains($this->query, 'WHERE')) {
-            $this->query .= " WHERE $column BETWEEN '$value1' AND '$value2'";
-        } else {
-            $this->query .= " AND $column BETWEEN '$value1' AND '$value2'";
-        }
+        $clause = str_contains($this->query, 'WHERE') ? ' AND' : ' WHERE';
+        $placeholder1 = ":{$column}_between_1";
+        $placeholder2 = ":{$column}_between_2";
+
+        $this->query .= "$clause $column BETWEEN $placeholder1 AND $placeholder2";
+        $this->parameters[$placeholder1] = $value1;
+        $this->parameters[$placeholder2] = $value2;
+
         return $this;
     }
+
     public function orWhereBetween(string $column, string $value1, string $value2) : self
     {
-        $this->query .= " OR $column BETWEEN '$value1' AND '$value2'";
+        $placeholder1 = ":{$column}_between_1";
+        $placeholder2 = ":{$column}_between_2";
+
+        $this->query .= " OR $column BETWEEN $placeholder1 AND $placeholder2";
+        $this->parameters[$placeholder1] = $value1;
+        $this->parameters[$placeholder2] = $value2;
 
         return $this;
     }
+
     public function whereNotBetween(string $column, string $value1, string $value2) : self
     {
-        if(!str_contains($this->query, 'WHERE')) {
-            $this->query .= " WHERE $column NOT BETWEEN '$value1' AND '$value2'";
-        } else {
-            $this->query .= " AND $column NOT BETWEEN '$value1' AND '$value2'";
-        }
+        $clause = str_contains($this->query, 'WHERE') ? ' AND' : ' WHERE';
+        $placeholder1 = ":{$column}_not_between_1";
+        $placeholder2 = ":{$column}_not_between_2";
+
+        $this->query .= "$clause $column NOT BETWEEN $placeholder1 AND $placeholder2";
+        $this->parameters[$placeholder1] = $value1;
+        $this->parameters[$placeholder2] = $value2;
+
         return $this;
     }
+
     public function orWhereNotBetween(string $column, string $value1, string $value2) : self
     {
-        $this->query .= " OR $column NOT BETWEEN '$value1' AND '$value2'";
+        $placeholder1 = ":{$column}_not_between_1";
+        $placeholder2 = ":{$column}_not_between_2";
+
+        $this->query .= " OR $column NOT BETWEEN $placeholder1 AND $placeholder2";
+        $this->parameters[$placeholder1] = $value1;
+        $this->parameters[$placeholder2] = $value2;
 
         return $this;
     }
+
     public function whereBetweenColumns(string $column, array $columns) : self
     {
+        $clause = str_contains($this->query, 'WHERE') ? ' AND' : ' WHERE';
+        $this->query .= "$clause $column BETWEEN $columns[0] AND $columns[1]";
 
-        if(!str_contains($this->query, 'WHERE')) {
-            $this->query .= " WHERE $column BETWEEN $columns[0] AND $columns[1]";
-        } else {
-            $this->query .= " AND $column BETWEEN $columns[0] AND $columns[1]";
-        }
         return $this;
     }
+
     public function orWhereBetweenColumns(string $column, array $columns) : self
     {
         $this->query .= " OR $column BETWEEN $columns[0] AND $columns[1]";
 
         return $this;
     }
+
     public function whereNull(string $column) : self
     {
-        if(!str_contains($this->query, 'WHERE')) {
-            $this->query .= " WHERE $column IS NULL";
-        } else {
-            $this->query .= " AND $column IS NULL";
-        }
+        $clause = str_contains($this->query, 'WHERE') ? ' AND' : ' WHERE';
+        $this->query .= "$clause $column IS NULL";
+
         return $this;
     }
+
     public function orWhereNull(string $column) : self
     {
         $this->query .= " OR $column IS NULL";
 
         return $this;
     }
+
     public function whereNotNull(string $column) : self
     {
-        if(!str_contains($this->query, 'WHERE')) {
-            $this->query .= " WHERE $column IS NOT NULL";
-        } else {
-            $this->query .= " AND $column IS NOT NULL";
-        }
+        $clause = str_contains($this->query, 'WHERE') ? ' AND' : ' WHERE';
+        $this->query .= "$clause $column IS NOT NULL";
+
         return $this;
     }
+
     public function orWhereNotNull(string $column) : self
     {
         $this->query .= " OR $column IS NOT NULL";
 
         return $this;
     }
+
     public function whereColumn(string $firstColumn, string $operator, string $secondColumn) : self
     {
-        if(!str_contains($this->query, 'WHERE')) {
-            $this->query .= " WHERE $firstColumn $operator $secondColumn";
-        } else {
-            $this->query .= " AND $firstColumn $operator $secondColumn";
-        }
+        $clause = str_contains($this->query, 'WHERE') ? ' AND' : ' WHERE';
+        $this->query .= "$clause $firstColumn $operator $secondColumn";
+
         return $this;
     }
+
     public function orWhereColumn(string $firstColumn, string $operator, string $secondColumn) : self
     {
         $this->query .= " OR $firstColumn $operator $secondColumn";
@@ -374,101 +404,164 @@ class MySQL implements QueryBuilderInterface
     public function having(string $column, string $operator, string $value) : self
     {
         $clause = str_contains($this->query, 'HAVING') ? ' AND' : ' HAVING';
-        $this->query .= "$clause $column $operator '$value'";
+        $placeholder = ":{$column}_having";
+        $this->query .= "$clause $column $operator $placeholder";
+        $this->parameters[$placeholder] = $value;
 
         return $this;
     }
+
+    public function orHaving(string $column, string $operator, string $value) : self
+    {
+        $placeholder = ":{$column}_or_having";
+        $this->query .= " OR $column $operator $placeholder";
+        $this->parameters[$placeholder] = $value;
+
+        return $this;
+    }
+
     public function havingIn(string $column, array $values) : self
     {
-        $values = implode(', ', $values);
-        if(!str_contains($this->query, 'HAVING')) {
-            $this->query .= " HAVING $column IN ($values)";
-        } else {
-            $this->query .= " AND $column IN ($values)";
+        $clause = str_contains($this->query, 'HAVING') ? ' AND' : ' HAVING';
+        $placeholders = [];
+
+        foreach ($values as $key => $value) {
+            $placeholder = ":{$column}_in_{$key}";
+            $placeholders[] = $placeholder;
+            $this->parameters[$placeholder] = $value;
         }
 
+        $this->query .= "$clause $column IN (" . implode(', ', $placeholders) . ")";
         return $this;
     }
+
     public function orHavingIn(string $column, array $values) : self
     {
-        $values = implode(', ', $values);
-        $this->query .= " OR $column IN ($values)";
+        $placeholders = [];
 
-        return $this;
-    }
-    public function havingNotIn(string $column, array $values) : self
-    {
-        $values = implode(', ', $values);
-        if(!str_contains($this->query, 'HAVING')) {
-            $this->query .= " HAVING $column NOT IN ($values)";
-        } else {
-            $this->query .= " AND $column NOT IN ($values)";
+        foreach ($values as $key => $value) {
+            $placeholder = ":{$column}_or_in_{$key}";
+            $placeholders[] = $placeholder;
+            $this->parameters[$placeholder] = $value;
         }
 
+        $this->query .= " OR $column IN (" . implode(', ', $placeholders) . ")";
         return $this;
     }
+
+    public function havingNotIn(string $column, array $values) : self
+    {
+        $clause = str_contains($this->query, 'HAVING') ? ' AND' : ' HAVING';
+        $placeholders = [];
+
+        foreach ($values as $key => $value) {
+            $placeholder = ":{$column}_not_in_{$key}";
+            $placeholders[] = $placeholder;
+            $this->parameters[$placeholder] = $value;
+        }
+
+        $this->query .= "$clause $column NOT IN (" . implode(', ', $placeholders) . ")";
+        return $this;
+    }
+
     public function orHavingNotIn(string $column, array $values) : self
     {
-        $values = implode(', ', $values);
-        $this->query .= " OR $column NOT IN ($values)";
+        $placeholders = [];
 
+        foreach ($values as $key => $value) {
+            $placeholder = ":{$column}_or_not_in_{$key}";
+            $placeholders[] = $placeholder;
+            $this->parameters[$placeholder] = $value;
+        }
+
+        $this->query .= " OR $column NOT IN (" . implode(', ', $placeholders) . ")";
         return $this;
     }
+
     public function havingBetween(string $column, string $value1, string $value2) : self
     {
         $clause = str_contains($this->query, 'HAVING') ? ' AND' : ' HAVING';
-        $this->query .= "$clause $column BETWEEN '$value1' AND '$value2'";
+        $placeholder1 = ":{$column}_between_1";
+        $placeholder2 = ":{$column}_between_2";
+
+        $this->query .= "$clause $column BETWEEN $placeholder1 AND $placeholder2";
+        $this->parameters[$placeholder1] = $value1;
+        $this->parameters[$placeholder2] = $value2;
 
         return $this;
     }
+
     public function havingNotBetween(string $column, string $value1, string $value2) : self
     {
         $clause = str_contains($this->query, 'HAVING') ? ' AND' : ' HAVING';
-        $this->query .= "$clause $column NOT BETWEEN '$value1' AND '$value2'";
+        $placeholder1 = ":{$column}_not_between_1";
+        $placeholder2 = ":{$column}_not_between_2";
+
+        $this->query .= "$clause $column NOT BETWEEN $placeholder1 AND $placeholder2";
+        $this->parameters[$placeholder1] = $value1;
+        $this->parameters[$placeholder2] = $value2;
 
         return $this;
     }
-    public function orHavingBetween(string $column, string $value1, string $value2): QueryBuilderInterface
+
+    public function orHavingBetween(string $column, string $value1, string $value2): self
     {
-        $this->query .= " OR $column BETWEEN '$value1' AND '$value2'";
+        $placeholder1 = ":{$column}_or_between_1";
+        $placeholder2 = ":{$column}_or_between_2";
+
+        $this->query .= " OR $column BETWEEN $placeholder1 AND $placeholder2";
+        $this->parameters[$placeholder1] = $value1;
+        $this->parameters[$placeholder2] = $value2;
 
         return $this;
     }
-    public function orHavingNotBetween(string $column, string $value1, string $value2): QueryBuilderInterface
+
+    public function orHavingNotBetween(string $column, string $value1, string $value2): self
     {
-        $this->query .= " OR $column NOT BETWEEN '$value1' AND '$value2'";
+        $placeholder1 = ":{$column}_or_not_between_1";
+        $placeholder2 = ":{$column}_or_not_between_2";
+
+        $this->query .= " OR $column NOT BETWEEN $placeholder1 AND $placeholder2";
+        $this->parameters[$placeholder1] = $value1;
+        $this->parameters[$placeholder2] = $value2;
 
         return $this;
     }
-    public function orHaving(string $column, string $operator, string $value) : self
-    {
-        $this->query .= " OR $column $operator '$value'";
 
-        return $this;
-    }
     public function havingLike(string $column, string $value) : self
     {
         $clause = str_contains($this->query, 'HAVING') ? ' AND' : ' HAVING';
-        $this->query .= "$clause $column LIKE '%$value%'";
+        $placeholder = ":{$column}_like";
+        $this->query .= "$clause $column LIKE $placeholder";
+        $this->parameters[$placeholder] = "%$value%";
 
         return $this;
     }
+
     public function orHavingLike(string $column, string $value) : self
     {
-        $this->query .= " OR $column LIKE '%$value%'";
+        $placeholder = ":{$column}_or_like";
+        $this->query .= " OR $column LIKE $placeholder";
+        $this->parameters[$placeholder] = "%$value%";
 
         return $this;
     }
+
     public function havingNotLike(string $column, string $value) : self
     {
         $clause = str_contains($this->query, 'HAVING') ? ' AND' : ' HAVING';
-        $this->query .= "$clause $column NOT LIKE '%$value%'";
+        $placeholder = ":{$column}_not_like";
+        $this->query .= "$clause $column NOT LIKE $placeholder";
+        $this->parameters[$placeholder] = "%$value%";
 
         return $this;
     }
+
     public function orHavingNotLike(string $column, string $value) : self
     {
-        $this->query .= " OR $column NOT LIKE '%$value%'";
+        $placeholder = ":{$column}_or_not_like";
+        $this->query .= " OR $column NOT LIKE $placeholder";
+        $this->parameters[$placeholder] = "%$value%";
 
         return $this;
     }

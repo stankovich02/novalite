@@ -10,7 +10,7 @@ use NovaLite\Http\Response;
 use NovaLite\Logging\Logger;
 use NovaLite\Routing\Router;
 use NovaLite\Sessions\Session;
-use NovaLite\Views\View;
+use Novalite\Views\View;
 
 class Application
 {
