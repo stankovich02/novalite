@@ -31,10 +31,12 @@ class ControllerCommand implements CommandInterface
         if (!is_dir('app/Controllers')) {
             mkdir('app/Controllers');
         }
+        $allFolders = [];
         if(str_contains($controllerName, '/') !== false){
             $folders = explode('/', $controllerName);
             $folderPath = 'app/Controllers';
             for($i = 0; $i < count($folders) - 1; $i++){
+                $allFolders[] = $folders[$i];
                 $folderPath .= '/' . $folders[$i];
                 if (!is_dir($folderPath)) {
                     mkdir($folderPath);
@@ -49,14 +51,16 @@ class ControllerCommand implements CommandInterface
             $controllerName = explode('/', $controllerName);
             $controllerName = end($controllerName);
         }
+        $namespace = str_contains($controllerName, '/') !== false ? 'App\Controllers\\' . implode('\\', $allFolders)
+            . ';' : 'App\Controllers;';
         if(isset($args[1])){
             $controllerContent = match ($args[1]) {
-                '--api' => "<?php\n\nnamespace App\Controllers;\n\nuse NovaLite\Http\Controller;\nuse NovaLite\Http\Request;\n\nclass $controllerName extends Controller\n{\n\tpublic function index()\n\t{\n\t\t//\n\t}\n\n\tpublic function store(Request \$request)\n\t{\n\t\t//\n\t}\n\n\tpublic function show(string \$id)\n\t{\n\t\t//\n\t}\n\n\tpublic function update(Request \$request, string \$id)\n\t{\n\t\t//\n\t}\n\n\tpublic function destroy(string \$id)\n\t{\n\t\t//\n\t}\n}\n",
+                '--api' => "<?php\n\nnamespace $namespace\n\nuse core\Http\Controller;\nuse core\Http\Request;\n\nclass $controllerName extends Controller\n{\n\tpublic function index()\n\t{\n\t\t//\n\t}\n\n\tpublic function store(Request \$request)\n\t{\n\t\t//\n\t}\n\n\tpublic function show(string \$id)\n\t{\n\t\t//\n\t}\n\n\tpublic function update(Request \$request, string \$id)\n\t{\n\t\t//\n\t}\n\n\tpublic function destroy(string \$id)\n\t{\n\t\t//\n\t}\n}\n",
                 '--resource' => $this->getResourceControllerContent($controllerName,$modelName),
             };
         }
         else{
-            $controllerContent = "<?php\n\nnamespace App\Controllers;\n\nuse NovaLite\Http\Controller;\n\nclass $controllerName extends Controller\n{\n    //\n}\n";
+            $controllerContent = "<?php\n\nnamespace $namespace\n\nuse core\Http\Controller;\n\nclass $controllerName extends Controller\n{\n    //\n}\n";
         }
         file_put_contents($controllerPath, $controllerContent);
         $controllerPath = realpath($controllerPath);
