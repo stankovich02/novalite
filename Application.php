@@ -20,7 +20,7 @@ class Application
     public Response $response;
     public \PDO $db;
     public static string $ROOT_DIR;
-    public View $view;
+    public static View $view;
     public Session $session;
     public Logger $logger;
 
@@ -31,7 +31,7 @@ class Application
         $this->request = new Request();
         $this->response = new Response();
         $this->router = new Router($this->request, $this->response);
-        $this->view = new View();
+        self::$view = new View(self::$ROOT_DIR . '/views', self::$ROOT_DIR . '/cache/views');
         $this->db = Database::getInstance($config['db']);
         $this->session = new Session();
         $this->logger = new Logger($config['log']);
@@ -50,9 +50,6 @@ class Application
         }
         catch(\Exception $e){
             echo $e->getMessage();
-    /*        echo $this->view->renderView('_404', [
-                'exception' => $e
-            ]);*/
         }
     }
 
@@ -63,11 +60,6 @@ class Application
             'line' => $e->getLine(),
             'stack_trace' => $e->getTraceAsString()
         ]);
-
-/*        $this->response->setStatusCode($e->getCode());
-        echo $this->view->renderView('_404', [
-            'exception' => $e
-        ]);*/
     }
     public function handleError(\Throwable $e) : void
     {

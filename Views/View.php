@@ -3,42 +3,43 @@
 namespace NovaLite\Views;
 
 use NovaLite\Application;
-use Twig\Environment;
-use Twig\Extension\DebugExtension;
-use Twig\Loader\FilesystemLoader;
+use Illuminate\Filesystem\Filesystem;
+use Illuminate\View\FileViewFinder;
+use Illuminate\View\Factory;
+use Illuminate\View\Engines\EngineResolver;
+use Illuminate\View\Engines\PhpEngine;
+use Illuminate\View\Engines\CompilerEngine;
+use Illuminate\View\Compilers\BladeCompiler;
+use Illuminate\Events\Dispatcher;
 
 class View
 {
-    protected Environment $twig;
+    protected Factory $viewFactory;
 
-    public function __construct()
+    public function __construct($viewsPath, $cachePath)
     {
-        $loader = new FilesystemLoader(Application::$ROOT_DIR . '/views');
+        $filesystem = new Filesystem();
+        $resolver = new EngineResolver();
 
-        $this->twig = new Environment($loader, [
-            'debug' => true,
-            'cache' => Application::$ROOT_DIR . '/cache/twig',
-        ]);
-        $this->twig->addFunction(new \Twig\TwigFunction('route', function ($name) {
-            return route($name);
-        }));
-        $this->twig->addFunction(new \Twig\TwigFunction('old', function ($key) {
-            return old($key);
-        }));
-        $this->twig->addExtension(new DebugExtension());
+        $resolver->register('php', function () {
+            return new PhpEngine();
+        });
 
+        $resolver->register('blade', function () use ($filesystem, $cachePath) {
+            return new CompilerEngine(new BladeCompiler($filesystem, $cachePath));
+        });
+
+        $finder = new FileViewFinder($filesystem, [$viewsPath]);
+        $dispatcher = new Dispatcher();
+
+        $this->viewFactory = new Factory($resolver, $finder, $dispatcher);
     }
 
-    public function renderView(string $view, array $params = []) : string
+    public function renderView($view, $data = []) : string
     {
         if(str_contains($view, '.')){
             $view = str_replace('.', '/', $view);
         }
-        return $this->twig->render("$view.twig", $params);
-    }
-
-    public function addGlobal($key, $value) : void
-    {
-        $this->twig->addGlobal($key, $value);
+        return $this->viewFactory->make($view, $data)->render();
     }
 }
