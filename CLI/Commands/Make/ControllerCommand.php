@@ -55,12 +55,12 @@ class ControllerCommand implements CommandInterface
             . ';' : 'App\Controllers;';
         if(isset($args[1])){
             $controllerContent = match ($args[1]) {
-                '--api' => "<?php\n\nnamespace $namespace\n\nuse core\Http\Controller;\nuse core\Http\Request;\n\nclass $controllerName extends Controller\n{\n\tpublic function index()\n\t{\n\t\t//\n\t}\n\n\tpublic function store(Request \$request)\n\t{\n\t\t//\n\t}\n\n\tpublic function show(string \$id)\n\t{\n\t\t//\n\t}\n\n\tpublic function update(Request \$request, string \$id)\n\t{\n\t\t//\n\t}\n\n\tpublic function destroy(string \$id)\n\t{\n\t\t//\n\t}\n}\n",
+                '--api' => "<?php\n\nnamespace $namespace\n\nuse NovaLite\Http\Controller;\nuse NovaLite\Http\Request;\n\nclass $controllerName extends Controller\n{\n\tpublic function index()\n\t{\n\t\t//\n\t}\n\n\tpublic function store(Request \$request)\n\t{\n\t\t//\n\t}\n\n\tpublic function show(string \$id)\n\t{\n\t\t//\n\t}\n\n\tpublic function update(Request \$request, string \$id)\n\t{\n\t\t//\n\t}\n\n\tpublic function destroy(string \$id)\n\t{\n\t\t//\n\t}\n}\n",
                 '--resource' => $this->getResourceControllerContent($controllerName,$modelName),
             };
         }
         else{
-            $controllerContent = "<?php\n\nnamespace $namespace\n\nuse core\Http\Controller;\n\nclass $controllerName extends Controller\n{\n    //\n}\n";
+            $controllerContent = "<?php\n\nnamespace $namespace\n\nuse NovaLite\Http\Controller;\n\nclass $controllerName extends Controller\n{\n    //\n}\n";
         }
         file_put_contents($controllerPath, $controllerContent);
         $controllerPath = realpath($controllerPath);
