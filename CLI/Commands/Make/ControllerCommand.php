@@ -45,6 +45,10 @@ class ControllerCommand implements CommandInterface
             $this->printCard('ERROR', 'Controller already exists.');
             return;
         }
+        if(str_contains($controllerName, '/') !== false) {
+            $controllerName = explode('/', $controllerName);
+            $controllerName = end($controllerName);
+        }
         if(isset($args[1])){
             $controllerContent = match ($args[1]) {
                 '--api' => "<?php\n\nnamespace App\Controllers;\n\nuse NovaLite\Http\Controller;\nuse NovaLite\Http\Request;\n\nclass $controllerName extends Controller\n{\n\tpublic function index()\n\t{\n\t\t//\n\t}\n\n\tpublic function store(Request \$request)\n\t{\n\t\t//\n\t}\n\n\tpublic function show(string \$id)\n\t{\n\t\t//\n\t}\n\n\tpublic function update(Request \$request, string \$id)\n\t{\n\t\t//\n\t}\n\n\tpublic function destroy(string \$id)\n\t{\n\t\t//\n\t}\n}\n",
