@@ -47,12 +47,12 @@ class ControllerCommand implements CommandInterface
             $this->printCard('ERROR', 'Controller already exists.');
             return;
         }
+        $namespace = str_contains($controllerName, '/') !== false ? 'App\Controllers\\' . implode('\\', $allFolders)
+            . ';' : 'App\Controllers;';
         if(str_contains($controllerName, '/') !== false) {
             $controllerName = explode('/', $controllerName);
             $controllerName = end($controllerName);
         }
-        $namespace = str_contains($controllerName, '/') !== false ? 'App\Controllers\\' . implode('\\', $allFolders)
-            . ';' : 'App\Controllers;';
         if(isset($args[1])){
             $controllerContent = match ($args[1]) {
                 '--api' => "<?php\n\nnamespace $namespace\n\nuse NovaLite\Http\Controller;\nuse NovaLite\Http\Request;\n\nclass $controllerName extends Controller\n{\n\tpublic function index()\n\t{\n\t\t//\n\t}\n\n\tpublic function store(Request \$request)\n\t{\n\t\t//\n\t}\n\n\tpublic function show(string \$id)\n\t{\n\t\t//\n\t}\n\n\tpublic function update(Request \$request, string \$id)\n\t{\n\t\t//\n\t}\n\n\tpublic function destroy(string \$id)\n\t{\n\t\t//\n\t}\n}\n",
