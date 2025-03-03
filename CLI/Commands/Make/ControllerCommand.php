@@ -31,6 +31,16 @@ class ControllerCommand implements CommandInterface
         if (!is_dir('app/Controllers')) {
             mkdir('app/Controllers');
         }
+        if(str_contains($controllerName, '/') !== false){
+            $folders = explode('/', $controllerName);
+            $folderPath = 'app/Controllers';
+            for($i = 0; $i < count($folders) - 1; $i++){
+                $folderPath .= '/' . $folders[$i];
+                if (!is_dir($folderPath)) {
+                    mkdir($folderPath);
+                }
+            }
+        }
         if (file_exists($controllerPath)) {
             $this->printCard('ERROR', 'Controller already exists.');
             return;
