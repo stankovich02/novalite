@@ -32,7 +32,7 @@ class Migrator
         $newMigrations = [];
 
         $files = $path ? scandir(Application::$ROOT_DIR . '/' . $path) : scandir(Application::$ROOT_DIR . '/database/migrations');
-
+        $fullPath = $path ? Application::$ROOT_DIR . '/' . $path : Application::$ROOT_DIR . '/database/migrations';
         $toApplyMigrations = array_diff($files, $appliedMigrations);
         if(count($toApplyMigrations) === 2){
             $instance->printCard('SUCCESS', 'All migrations are already applied.');
@@ -42,7 +42,7 @@ class Migrator
         foreach ($toApplyMigrations as $index => $migration) {
             if($migration == '.' || $migration == '..') continue;
 
-            require_once(Application::$ROOT_DIR . '/database/migrations/' . $migration);
+            require_once($fullPath . $migration);
             $className = pathinfo($migration, PATHINFO_FILENAME);
             $className = explode('_', $className, 5);
             $className = $className[4];
