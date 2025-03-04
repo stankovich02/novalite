@@ -33,6 +33,7 @@ class Migrator
 
         $files = $path ? scandir(Application::$ROOT_DIR . '/' . $path) : scandir(Application::$ROOT_DIR . '/database/migrations');
         $fullPath = $path ? Application::$ROOT_DIR . '/' . $path : Application::$ROOT_DIR . '/database/migrations';
+        $fullPath = rtrim($fullPath, '/') . '/';
         $toApplyMigrations = array_diff($files, $appliedMigrations);
         if(count($toApplyMigrations) === 2){
             $instance->printCard('SUCCESS', 'All migrations are already applied.');
