@@ -355,8 +355,8 @@ class Migration
     }
     public function timestamps() : void
     {
-        $this->appendColumn($this->wrapColumn('created_at') . " TIMESTAMP DEFAULT NULL");
-        $this->appendColumn($this->wrapColumn('updated_at') . " TIMESTAMP DEFAULT NULL");
+        $this->appendColumn($this->wrapColumn('created_at') . " TIMESTAMP NULL DEFAULT NULL");
+        $this->appendColumn($this->wrapColumn('updated_at') . " TIMESTAMP NULL DEFAULT NULL");
     }
     public function dropColumn(array|string $columns) : void
     {
