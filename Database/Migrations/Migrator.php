@@ -44,6 +44,8 @@ class Migrator
 
             require_once(Application::$ROOT_DIR . '/database/migrations/' . $migration);
             $className = pathinfo($migration, PATHINFO_FILENAME);
+            $className = explode('_', $className, 5);
+            $className = $className[4];
             $migrationInstance = new $className();
             $startTime = microtime(true);
             $migrationInstance->up();
