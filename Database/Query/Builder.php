@@ -414,4 +414,13 @@ class Builder implements QueryBuilderInterface
         return $this->connectionInstance->with($instance,...$relations);
     }
 
+    function getQuery(): string
+    {
+        return '';
+    }
+
+    function getParameters(): array
+    {
+        return [];
+    }
 }
