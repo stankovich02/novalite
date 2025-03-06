@@ -18,7 +18,7 @@ class Session
     }
     public function has(string $key) : bool
     {
-        return isset($_SESSION[$key]);
+        return isset($_SESSION[$key]) || isset($_SESSION[$key . '_expire']) || isset($_SESSION['flash_' . $key]);
     }
     public function set(string $key, $value) : void
     {
