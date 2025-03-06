@@ -13,7 +13,6 @@ class RedirectResponse
         if($path) {
             $this->path = $path;
         }
-
     }
     public function to(string $routeName) : void
     {
@@ -44,6 +43,7 @@ class RedirectResponse
         session_write_close();
         http_response_code($this->statusCode);
         header("Location: " . $this->path);
+        exit;
     }
 
 }
