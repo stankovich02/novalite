@@ -11,7 +11,7 @@ class RedirectResponse
     public function __construct(string $path, int $status)
     {
         if($path) {
-            $this->$path = $path;
+            $this->path = $path;
         }
 
     }
