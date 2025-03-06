@@ -31,7 +31,7 @@ class Session
             unset($_SESSION[$key]);
         }
     }
-    public function push(string $key, object $value) : void
+    public function push(string $key, mixed $value) : void
     {
         $_SESSION[$key][] = $value;
     }
