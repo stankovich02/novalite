@@ -158,8 +158,7 @@ class Request
            foreach ($this->data as $key => $value) {
                     $_SESSION['old'][$key] = $value;
             }
-           redirect($_SERVER['HTTP_REFERER']);
-           exit;
+           redirect($_SERVER['HTTP_REFERER'])->send();
         }
         else{
             $_SESSION['errors'] = new ValidationError([]);
