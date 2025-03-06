@@ -11,6 +11,7 @@ use Illuminate\View\Engines\PhpEngine;
 use Illuminate\View\Engines\CompilerEngine;
 use Illuminate\View\Compilers\BladeCompiler;
 use Illuminate\Events\Dispatcher;
+use NovaLite\Validations\ValidationError;
 
 class View
 {
@@ -33,8 +34,7 @@ class View
         $dispatcher = new Dispatcher();
 
         $this->viewFactory = new Factory($resolver, $finder, $dispatcher);
-
-        $this->viewFactory->share('errors', $_SESSION['errors'] ?? null);
+        $this->viewFactory->share('errors', $_SESSION['errors'] ?? new ValidationError([]));
     }
 
     public function renderView($view, $data = []) : string
