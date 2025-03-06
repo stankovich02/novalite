@@ -574,48 +574,48 @@ class PostgreSQL implements QueryBuilderInterface
     {
         $this->query = str_replace('*', "COUNT($column)", $this->query);
         $statement = Application::$app->db->prepare($this->query);
-        $statement->execute();
+        $statement->execute($this->parameters);
         return $statement->fetchColumn();
     }
     public function max(string $column) : int
     {
         $this->query = str_replace('*', "MAX($column)", $this->query);
         $statement = Application::$app->db->prepare($this->query);
-        $statement->execute();
+        $statement->execute($this->parameters);
         return $statement->fetchColumn();
     }
     public function min(string $column) : int
     {
         $this->query = str_replace('*', "MIN($column)", $this->query);
         $statement = Application::$app->db->prepare($this->query);
-        $statement->execute();
+        $statement->execute($this->parameters);
         return $statement->fetchColumn();
     }
     public function sum(string $column) : int
     {
         $this->query = str_replace('*', "SUM($column)", $this->query);
         $statement = Application::$app->db->prepare($this->query);
-        $statement->execute();
+        $statement->execute($this->parameters);
         return $statement->fetchColumn();
     }
     public function avg(string $column) : int
     {
         $this->query = str_replace('*', "AVG($column)", $this->query);
         $statement = Application::$app->db->prepare($this->query);
-        $statement->execute();
+        $statement->execute($this->parameters);
         return $statement->fetchColumn();
     }
     public function value(string $column) : mixed
     {
         $this->query = str_replace('*', $column, $this->query);
         $statement = Application::$app->db->prepare($this->query);
-        $statement->execute();
+        $statement->execute($this->parameters);
         return $statement->fetchColumn();
     }
     public function exists() : bool
     {
         $statement = Application::$app->db->prepare($this->query);
-        $statement->execute();
+        $statement->execute($this->parameters);
         return $statement->rowCount() > 0;
     }
     public function empty() : bool
@@ -697,5 +697,14 @@ class PostgreSQL implements QueryBuilderInterface
     public function getParameters() : array
     {
         return $this->parameters;
+    }
+
+    public function orHaving(string $column, string $operator, string $value) : self
+    {
+        $placeholder = ":{$column}_or_having";
+        $this->query .= " OR $column $operator $placeholder";
+        $this->parameters[$placeholder] = $value;
+
+        return $this;
     }
 }
