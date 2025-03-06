@@ -14,9 +14,11 @@ class RedirectResponse
             $this->path = $path;
         }
     }
-    public function to(string $routeName) : void
+    public function to(string $routeName) : self
     {
         $this->path = route($routeName);
+
+        return $this;
     }
     public function back() : self
     {
@@ -27,10 +29,14 @@ class RedirectResponse
     public function toURL(string $url) : void
     {
         $this->path = $url;
+
+        $this->send();
     }
     public function withLastInputs() : void
     {
         $_SESSION['old'] = $_POST;
+
+        $this->send();
     }
     public function with(string $key,string $value) : self
     {
