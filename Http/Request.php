@@ -64,7 +64,7 @@ class Request
                 break;
         }
     }
-    public function validate($data) : void
+    public function validate($data) : RedirectResponse|bool
     {
         $this->data = $this->getAll();
         foreach ($data as $field => $fieldRules) {
@@ -158,7 +158,7 @@ class Request
            foreach ($this->data as $key => $value) {
                     $_SESSION['old'][$key] = $value;
             }
-           redirect($_SERVER['HTTP_REFERER'])->send();
+           return redirect($_SERVER['HTTP_REFERER']);
         }
         else{
             $_SESSION['errors'] = new ValidationError([]);
@@ -169,6 +169,7 @@ class Request
                 }
             }
         }
+        return true;
 
     }
     private function applyRule($value,$rule) : bool
