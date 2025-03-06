@@ -31,11 +31,10 @@ class Application
         $this->request = new Request();
         $this->response = new Response();
         $this->router = new Router($this->request, $this->response);
-        self::$view = new View(self::$ROOT_DIR . '/views', self::$ROOT_DIR . '/cache/views');
         $this->db = Database::getInstance($config['db']);
         $this->session = new Session();
         $this->logger = new Logger($config['log']);
-
+        self::$view = new View(self::$ROOT_DIR . '/views', self::$ROOT_DIR . '/cache/views');
         set_exception_handler([$this, 'handleException']);
         set_error_handler(function ($severity, $message, $file, $line) {
             $this->handleError(new \ErrorException($message, $severity, $severity, $file, $line));

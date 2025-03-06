@@ -34,7 +34,7 @@ class View
 
         $this->viewFactory = new Factory($resolver, $finder, $dispatcher);
 
-        $this->viewFactory->share('errors', $_SESSION['errors']);
+        $this->viewFactory->share('errors', $_SESSION['errors'] ?? null);
     }
 
     public function renderView($view, $data = []) : string
