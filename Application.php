@@ -52,6 +52,8 @@ class Application
                 $response->send();
                 return;
             }
+
+            echo $response;
         }
         catch(\Exception $e){
             echo $e->getMessage();
