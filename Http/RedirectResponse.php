@@ -41,9 +41,9 @@ class RedirectResponse
     }
     public function send(): void
     {
+        session_write_close();
         http_response_code($this->statusCode);
         header("Location: " . $this->path);
-        exit;
     }
 
 }
