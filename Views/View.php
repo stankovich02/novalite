@@ -33,6 +33,8 @@ class View
         $dispatcher = new Dispatcher();
 
         $this->viewFactory = new Factory($resolver, $finder, $dispatcher);
+
+        $this->viewFactory->share('errors', $_SESSION['errors']);
     }
 
     public function renderView($view, $data = []) : string
