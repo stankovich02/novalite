@@ -154,12 +154,14 @@ class Request
         }
         if(!empty($this->errors))
         {
+            $_SESSION['errors'] = new ValidationError($this->errors);
            foreach ($this->data as $key => $value) {
                     $_SESSION['old'][$key] = $value;
             }
             redirect($_SERVER['HTTP_REFERER']);
         }
         else{
+            $_SESSION['errors'] = new ValidationError([]);
             foreach ($this->data as $key => $value) {
                 if(isset($_SESSION['old'][$key]))
                 {
@@ -167,7 +169,7 @@ class Request
                 }
             }
         }
-        $_SESSION['errors'] = new ValidationError($this->errors);
+
     }
     private function applyRule($value,$rule) : bool
     {
