@@ -5,6 +5,7 @@ namespace NovaLite;
 use NovaLite\Database\Database;
 use NovaLite\Database\Model;
 use NovaLite\Http\Controller;
+use NovaLite\Http\RedirectResponse;
 use NovaLite\Http\Request;
 use NovaLite\Http\Response;
 use NovaLite\Logging\Logger;
@@ -45,7 +46,12 @@ class Application
     public function run() : void
     {
         try{
-            echo $this->router->resolve();
+            $response = $this->router->resolve();
+
+            if ($response instanceof RedirectResponse) {
+                $response->send();
+                return;
+            }
         }
         catch(\Exception $e){
             echo $e->getMessage();

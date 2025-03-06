@@ -6,27 +6,28 @@ use NovaLite\Application;
 
 class RedirectResponse
 {
-    public function __construct(string $path = '', int $status = 302)
+    private string $path = '';
+    private int $statusCode = 302;
+    public function __construct(string $path, int $status)
     {
-        http_response_code($status);
         if($path) {
-            header('Location: ' . $path);
+            $this->$path = $path;
         }
 
     }
     public function to(string $routeName) : void
     {
-        header('Location: ' . route($routeName));
+        $this->path = route($routeName);
     }
     public function back() : self
     {
-        header('Location: ' . $_SERVER['HTTP_REFERER']);
+        $this->path = $_SERVER['HTTP_REFERER'];
 
         return $this;
     }
     public function toURL(string $url) : void
     {
-        header('Location: ' . $url);
+        $this->path = $url;
     }
     public function withLastInputs() : void
     {
@@ -37,6 +38,12 @@ class RedirectResponse
         Application::$app->session->flash($key, $value);
 
         return $this;
+    }
+    public function send(): void
+    {
+        http_response_code($this->statusCode);
+        header("Location: " . $this->path);
+        exit;
     }
 
 }
