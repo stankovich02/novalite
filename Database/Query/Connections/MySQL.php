@@ -376,6 +376,9 @@ class MySQL implements QueryBuilderInterface
         $statement = Application::$app->db->prepare($this->query);
         $statement->execute($this->parameters);
         $row = $statement->fetch();
+        if($this->instance === null) {
+            return $row;
+        }
         $instance = new $this->instance();
         foreach ($row as $key => $value) {
             $instance->{$key} = $value;
