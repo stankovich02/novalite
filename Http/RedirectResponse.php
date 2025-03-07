@@ -13,6 +13,7 @@ class RedirectResponse
         if($path) {
             $this->path = $path;
         }
+        $this->statusCode = $status;
     }
     public function to(string $routeName) : self
     {
@@ -32,11 +33,11 @@ class RedirectResponse
 
         $this->send();
     }
-    public function withLastInputs() : void
+    public function withLastInputs() : self
     {
         $_SESSION['old'] = $_POST;
 
-        $this->send();
+        return $this;
     }
     public function with(string $key,string $value) : self
     {

@@ -42,6 +42,10 @@ if (!function_exists('redirect')) {
      */
     function redirect(string $path = '', int $status = 302) : RedirectResponse
     {
+        if($path){
+            http_response_code($status);
+            header('Location: ' . $path);
+        }
         return new RedirectResponse($path, $status);
     }
 }
