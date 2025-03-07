@@ -93,6 +93,7 @@ class Router{
             }
         }
 
+
         $this->groupOptions = [];
 
     }
@@ -261,15 +262,11 @@ class Router{
                 }
             }
         }
-        foreach ($this->routes as $method => $routes) {
-            foreach ($routes as $route => $callback) {
-                if (isset($callback['middlewares'])) {
-                    if(count($callback['middlewares']) > 0){
-                        foreach ($callback['middlewares'] as $middleware) {
-                            $middleware = new $middleware();
-                            $middleware->handle();
-                        }
-                    }
+        if (isset($callback['middlewares'])) {
+            if(count($callback['middlewares']) > 0){
+                foreach ($callback['middlewares'] as $middleware) {
+                    $middleware = new $middleware();
+                    $middleware->handle();
                 }
             }
         }
