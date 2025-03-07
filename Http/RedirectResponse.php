@@ -27,11 +27,11 @@ class RedirectResponse
 
         return $this;
     }
-    public function toURL(string $url) : void
+    public function toURL(string $url) : self
     {
         $this->path = $url;
 
-        $this->send();
+        return $this;
     }
     public function withLastInputs() : self
     {

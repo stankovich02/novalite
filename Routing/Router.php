@@ -196,7 +196,11 @@ class Router{
 
         foreach ($middlewares['onEveryRequest'] as $middlewareClass) {
             $instance = new $middlewareClass();
-            $instance->handle();
+            $middlewareResult = $instance->handle();
+            if ($middlewareResult instanceof RedirectResponse) {
+                $middlewareResult->send();
+                exit;
+            }
         }
         foreach ($this->routes[$method] as $route => $callback) {
             $routeParts = explode('/', trim($route, '/'));
@@ -245,18 +249,30 @@ class Router{
             foreach ($controller->getMiddlewares() as $middleware => $value) {
                 if (!is_array($value)) {
                     $middlewareInstance = new $middleware();
-                    $middlewareInstance->handle();
+                    $middlewareResult = $middlewareInstance->handle();
+                    if ($middlewareResult instanceof RedirectResponse) {
+                        $middlewareResult->send();
+                        exit;
+                    }
                 } else {
                     if (count($value['only']) > 0) {
                         if (in_array($controllerMethod, $value['only'])) {
                             $middlewareInstance = new $middleware();
-                            $middlewareInstance->handle();
+                            $middlewareResult = $middlewareInstance->handle();
+                            if ($middlewareResult instanceof RedirectResponse) {
+                                $middlewareResult->send();
+                                exit;
+                            }
                         }
                     }
                     if (count($value['except']) > 0) {
                         if (!in_array($controllerMethod, $value['except'])) {
                             $middlewareInstance = new $middleware();
-                            $middlewareInstance->handle();
+                            $middlewareResult = $middlewareInstance->handle();
+                            if ($middlewareResult instanceof RedirectResponse) {
+                                $middlewareResult->send();
+                                exit;
+                            }
                         }
                     }
                 }
@@ -266,7 +282,11 @@ class Router{
             if(count($callback['middlewares']) > 0){
                 foreach ($callback['middlewares'] as $middleware) {
                     $middleware = new $middleware();
-                    $middleware->handle();
+                    $middlewareResult = $middleware->handle();
+                    if ($middlewareResult instanceof RedirectResponse) {
+                        $middlewareResult->send();
+                        exit;
+                    }
                 }
             }
         }
