@@ -158,8 +158,6 @@ abstract class Model
         foreach ($this->attributes as $attribute => $value) {
             $statement->bindValue(":$attribute", $value);
         }
-        var_dump($statement);
-        exit;
         return $statement->execute();
     }
 
