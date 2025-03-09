@@ -29,6 +29,10 @@ abstract class Model
     {
         return $this->primaryKey;
     }
+    public function getPrimaryKeyValue()
+    {
+        return $this->{$this->primaryKey};
+    }
     public static function find($id) : static
     {
         $instance = new static();
@@ -143,6 +147,7 @@ abstract class Model
 
     public function save() : bool
     {
+        $instance = new static();
         if(!$this->table) {
             $this->table = $this->guessTableName($this);
         }
@@ -161,7 +166,7 @@ abstract class Model
         foreach ($this->attributes as $attribute => $value) {
             $statement->bindValue(":$attribute", $value);
         }
-        var_dump($this->getPrimaryKey(),$this->{$this->getPrimaryKey()});
+        var_dump($this->getPrimaryKeyValue(),$instance);
         exit;
         if ($this->exists) {
             $statement->bindValue(":{$this->getPrimaryKey()}", $this->{$this->primaryKey});
