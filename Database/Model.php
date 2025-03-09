@@ -3,6 +3,7 @@
 namespace NovaLite\Database;
 
 use NovaLite\Database\Query\Builder;
+use NovaLite\Database\Query\QueryBuilderInterface;
 use NovaLite\Exceptions\ModelNotFoundException;
 
 abstract class Model
@@ -66,6 +67,14 @@ abstract class Model
             return $instance->makeInstances($rows);
         }
         return [];
+    }
+    public static function where(string $column,string $operator ,$value) : QueryBuilderInterface
+    {
+        $instance = new static();
+        $table = $instance->guessTableName($instance);
+        $builder = new Builder($table);
+        $builder->setInstance($instance);
+        return $builder->where($column,$operator, $value);
     }
     public static function findOrFail($id) : static
     {
