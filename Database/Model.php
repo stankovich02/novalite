@@ -25,7 +25,10 @@ abstract class Model
     {
         self::$pdo = $pdoInstance;
     }
-
+    public function getPrimaryKey()
+    {
+        return $this->primaryKey;
+    }
     public static function find($id) : static
     {
         $instance = new static();
@@ -158,10 +161,10 @@ abstract class Model
         foreach ($this->attributes as $attribute => $value) {
             $statement->bindValue(":$attribute", $value);
         }
-        var_dump($this);
+        var_dump($this->getPrimaryKey(),$this->{$this->getPrimaryKey()});
         exit;
         if ($this->exists) {
-            $statement->bindValue(":{$this->primaryKey}", $this->{$this->primaryKey});
+            $statement->bindValue(":{$this->getPrimaryKey()}", $this->{$this->primaryKey});
         }
         return $statement->execute();
     }
