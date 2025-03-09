@@ -140,8 +140,9 @@ abstract class Model
 
     public function save() : bool
     {
+        $instance = new static();
         if(!$this->table) {
-            $this->table = strtolower((new \ReflectionClass($this))->getShortName()) . 's';
+            $this->table = $instance->guessTableName($instance);
         }
         if($this->fillable) {
             $this->attributes = array_filter($this->attributes, fn($key) => in_array($key, $this->fillable), ARRAY_FILTER_USE_KEY);

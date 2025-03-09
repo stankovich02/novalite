@@ -370,6 +370,7 @@ class MySQL implements QueryBuilderInterface
             foreach ($row as $key => $value) {
                 $instance->{$key} = $value;
             }
+            $instance->exists = true;
             $instances[] = $instance;
         }
         return $instances;
@@ -389,6 +390,7 @@ class MySQL implements QueryBuilderInterface
         foreach ($row as $key => $value) {
             $instance->{$key} = $value;
         }
+        $instance->exists = true;
         return $instance;
     }
     public function groupBy(string ...$columns) : self

@@ -353,12 +353,16 @@ class PostgreSQL implements QueryBuilderInterface
         if($this->instance === null) {
             return $rows;
         }
+        if(count($rows) === 0) {
+            return [];
+        }
         $instances = [];
         foreach ($rows as $row) {
             $instance = new $this->instance();
             foreach ($row as $key => $value) {
                 $instance->{$key} = $value;
             }
+            $instance->exists = true;
             $instances[] = $instance;
         }
         return $instances;
@@ -368,10 +372,17 @@ class PostgreSQL implements QueryBuilderInterface
         $statement = Application::$app->db->prepare($this->query);
         $statement->execute($this->parameters);
         $row = $statement->fetch();
+        if($this->instance === null) {
+            return $row;
+        }
+        if(!$row) {
+            return null;
+        }
         $instance = new $this->instance();
         foreach ($row as $key => $value) {
             $instance->{$key} = $value;
         }
+        $instance->exists = true;
         return $instance;
     }
     public function groupBy(string ...$columns) : self
