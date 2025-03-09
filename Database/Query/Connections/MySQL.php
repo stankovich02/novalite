@@ -394,10 +394,6 @@ class MySQL implements QueryBuilderInterface
         $instance->exists = true;
         $primaryKey = $instance->primaryKey ?? 'id';
         $instance->{$primaryKey} = $row->{$primaryKey} ?? null;
-        echo "<pre>";
-        var_dump($primaryKey, $instance->{$primaryKey}, $row, $row->{$primaryKey});
-        echo "</pre>";
-        exit;
         foreach ($row as $key => $value) {
             $instance->{$key} = $value;
         }
