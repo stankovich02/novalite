@@ -158,6 +158,9 @@ abstract class Model
         foreach ($this->attributes as $attribute => $value) {
             $statement->bindValue(":$attribute", $value);
         }
+        if ($this->exists) {
+            $statement->bindValue(":{$this->primaryKey}", $this->{$this->primaryKey});
+        }
         return $statement->execute();
     }
 
