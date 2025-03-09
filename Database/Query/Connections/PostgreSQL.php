@@ -362,7 +362,7 @@ class PostgreSQL implements QueryBuilderInterface
             $instance = new $this->instance();
             $instance->exists = true;
             $primaryKey = $instance->primaryKey ?? 'id';
-            $instance->{$primaryKey} = $row[$primaryKey] ?? null;
+            $instance->{$primaryKey} = $row->{$primaryKey} ?? null;
             foreach ($row as $key => $value) {
                 $instance->{$key} = $value;
             }
@@ -385,7 +385,7 @@ class PostgreSQL implements QueryBuilderInterface
         $instance = new $this->instance();
         $instance->exists = true;
         $primaryKey = $instance->primaryKey ?? 'id';
-        $instance->{$primaryKey} = $row[$primaryKey] ?? null;
+        $instance->{$primaryKey} = $row->{$primaryKey} ?? null;
         foreach ($row as $key => $value) {
             $instance->{$key} = $value;
         }
