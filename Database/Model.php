@@ -154,12 +154,12 @@ abstract class Model
             $params = array_map(fn($item) => ":$item", array_keys($this->attributes));
             $sql = "INSERT INTO $this->table (".implode(',', array_keys($this->attributes)).") VALUES (".implode(',', $params).")";
         }
-        var_dump($this->attributes);
-        exit;
         $statement = self::$pdo->prepare($sql);
         foreach ($this->attributes as $attribute => $value) {
             $statement->bindValue(":$attribute", $value);
         }
+        var_dump($statement);
+        exit;
         return $statement->execute();
     }
 
