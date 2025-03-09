@@ -25,14 +25,6 @@ abstract class Model
     {
         self::$pdo = $pdoInstance;
     }
-    public function getPrimaryKey()
-    {
-        return $this->primaryKey;
-    }
-    public function getPrimaryKeyValue()
-    {
-        return $this->{$this->primaryKey};
-    }
     public static function find($id) : static
     {
         $instance = new static();
@@ -150,6 +142,7 @@ abstract class Model
         if(!$this->table) {
             $this->table = $this->guessTableName($this);
         }
+        $id = $this->attributes[$this->primaryKey];
         if($this->fillable) {
             $this->attributes = array_filter($this->attributes, fn($key) => in_array($key, $this->fillable), ARRAY_FILTER_USE_KEY);
         }
@@ -166,8 +159,9 @@ abstract class Model
             $statement->bindValue(":$attribute", $value);
         }
         if ($this->exists) {
-            $statement->bindValue(":{$this->getPrimaryKey()}", $this->{$this->primaryKey});
+            $statement->bindValue(":{$this->primaryKey}", $id);
         }
+        var_dump($this->primaryKey,$id);
         return $statement->execute();
     }
 

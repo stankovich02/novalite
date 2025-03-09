@@ -397,8 +397,6 @@ class MySQL implements QueryBuilderInterface
         foreach ($row as $key => $value) {
             $instance->{$key} = $value;
         }
-        var_dump($instance);
-        exit;
         return $instance;
     }
     public function groupBy(string ...$columns) : self
