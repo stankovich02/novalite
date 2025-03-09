@@ -371,7 +371,7 @@ class PostgreSQL implements QueryBuilderInterface
         }
         return $instances;
     }
-    public function first() : Model|null
+    public function first() : mixed
     {
         $statement = Application::$app->db->prepare($this->query);
         $statement->execute($this->parameters);

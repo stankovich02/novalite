@@ -161,7 +161,6 @@ abstract class Model
         if ($this->exists) {
             $statement->bindValue(":{$this->primaryKey}", $id);
         }
-        var_dump($this->primaryKey,$id);
         return $statement->execute();
     }
 
