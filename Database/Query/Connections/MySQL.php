@@ -361,6 +361,9 @@ class MySQL implements QueryBuilderInterface
         if($this->instance === null) {
             return $rows;
         }
+        if(count($rows) === 0) {
+            return [];
+        }
         $instances = [];
         foreach ($rows as $row) {
             $instance = new $this->instance();
@@ -378,6 +381,9 @@ class MySQL implements QueryBuilderInterface
         $row = $statement->fetch();
         if($this->instance === null) {
             return $row;
+        }
+        if(!$row) {
+            return null;
         }
         $instance = new $this->instance();
         foreach ($row as $key => $value) {
