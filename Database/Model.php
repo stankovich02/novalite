@@ -17,7 +17,7 @@ abstract class Model
     const UPDATED_AT = 'updated_at';
     protected array $hidden = [];
 
-    protected bool $exists = false;
+    public bool $exists = false;
     protected bool $timestamps = true;
     protected static \PDO $pdo;
 
@@ -140,23 +140,22 @@ abstract class Model
 
     public function save() : bool
     {
-        $instance = new static();
-        if(!$instance->table) {
-            $instance->table = $instance->guessTableName($instance);
+        if(!$this->table) {
+            $this->table = $this->guessTableName($this);
         }
-        if($instance->fillable) {
-            $instance->attributes = array_filter($instance->attributes, fn($key) => in_array($key, $instance->fillable), ARRAY_FILTER_USE_KEY);
+        if($this->fillable) {
+            $this->attributes = array_filter($this->attributes, fn($key) => in_array($key, $this->fillable), ARRAY_FILTER_USE_KEY);
         }
-        if ($instance->exists) {
-            $params = array_map(fn($item) => "$item = :$item", array_keys($instance->attributes));
-            $sql = "UPDATE $instance->table SET ".implode(',', $params)." WHERE {$instance->primaryKey} = :{$instance->primaryKey}";
+        if ($this->exists) {
+            $params = array_map(fn($item) => "$item = :$item", array_keys($this->attributes));
+            $sql = "UPDATE $this->table SET ".implode(',', $params)." WHERE {$this->primaryKey} = :{$this->primaryKey}";
         }
         else {
-            $params = array_map(fn($item) => ":$item", array_keys($instance->attributes));
-            $sql = "INSERT INTO $instance->table (".implode(',', array_keys($instance->attributes)).") VALUES (".implode(',', $params).")";
+            $params = array_map(fn($item) => ":$item", array_keys($this->attributes));
+            $sql = "INSERT INTO $this->table (".implode(',', array_keys($this->attributes)).") VALUES (".implode(',', $params).")";
         }
         $statement = self::$pdo->prepare($sql);
-        foreach ($instance->attributes as $attribute => $value) {
+        foreach ($this->attributes as $attribute => $value) {
             $statement->bindValue(":$attribute", $value);
         }
         return $statement->execute();

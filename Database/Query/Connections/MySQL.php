@@ -368,10 +368,11 @@ class MySQL implements QueryBuilderInterface
         $instances = [];
         foreach ($rows as $row) {
             $instance = new $this->instance();
+            $instance->exists = true;
             foreach ($row as $key => $value) {
                 $instance->{$key} = $value;
             }
-            $instance->exists = true;
+
             $instances[] = $instance;
         }
         return $instances;
@@ -388,10 +389,11 @@ class MySQL implements QueryBuilderInterface
             return null;
         }
         $instance = new $this->instance();
+        $instance->exists = true;
         foreach ($row as $key => $value) {
             $instance->{$key} = $value;
         }
-        $instance->exists = true;
+
         return $instance;
     }
     public function groupBy(string ...$columns) : self
