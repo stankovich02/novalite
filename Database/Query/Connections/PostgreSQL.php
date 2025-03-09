@@ -3,6 +3,7 @@
 namespace NovaLite\Database\Query\Connections;
 
 use NovaLite\Application;
+use NovaLite\Database\Model;
 use NovaLite\Database\Query\Join;
 use NovaLite\Database\Query\QueryBuilderInterface;
 use NovaLite\Exceptions\ModelNotFoundException;
@@ -367,7 +368,7 @@ class PostgreSQL implements QueryBuilderInterface
         }
         return $instances;
     }
-    public function first() : mixed
+    public function first() : Model|null
     {
         $statement = Application::$app->db->prepare($this->query);
         $statement->execute($this->parameters);
