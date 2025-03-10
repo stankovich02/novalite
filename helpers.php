@@ -86,6 +86,7 @@ if (!function_exists('response')) {
         if($content){
             http_response_code($status);
             echo $content;
+            exit;
         }
         return new Response($status);
     }
