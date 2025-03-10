@@ -83,7 +83,11 @@ if (!function_exists('response')) {
      */
     function response(string $content = '', int $status = 200) : Response
     {
-        return new Response($content, $status);
+        if($content){
+            http_response_code($status);
+            echo $content;
+        }
+        return new Response($status);
     }
 }
 if (!function_exists('session')) {

@@ -69,29 +69,34 @@ class Response
     public const HTTP_LOOP_DETECTED = 508;
     public const HTTP_NOT_EXTENDED = 510;
     public const HTTP_NETWORK_AUTHENTICATION_REQUIRED = 511;
-    public function __construct(string $content = '', int $status = 200)
+    public function __construct(int $status = 200)
     {
         $this->setStatusCode($status);
-        echo $content;
     }
-    public function json(array $data) : void
+    public function json(array $data) : self
     {
         header('Content-Type: application/json');
+        var_dump($data);
+        exit;
         echo json_encode($data);
+
+        return $this;
     }
     public function setStatusCode(int $code) : void
     {
         http_response_code($code);
     }
-    public function header(string $header, string $value) : Response
+    public function header(string $header, string $value) : self
     {
         header("$header: $value");
 
         return $this;
     }
-    public function cookie(string $name, string $value, int $expire = 0, string $path = '/', string $domain = '', bool $secure = false, bool $httpOnly = false) : void
+    public function cookie(string $name, string $value, int $expire = 0, string $path = '/', string $domain = '', bool $secure = false, bool $httpOnly = false) : self
     {
         setcookie($name, $value, $expire, $path, $domain, $secure, $httpOnly);
+
+        return $this;
     }
     public function download(string $path) : void
     {
@@ -100,10 +105,12 @@ class Response
         header('Content-disposition: attachment; filename="' . basename($path) . '"');
         readfile($path);
     }
-    public function headers(array $headers) : void
+    public function headers(array $headers) : self
     {
         foreach($headers as $header => $value){
             $this->header($header, $value);
         }
+
+        return $this;
     }
 }
