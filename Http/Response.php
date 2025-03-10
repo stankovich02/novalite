@@ -76,9 +76,7 @@ class Response
     public function json(array $data) : self
     {
         header('Content-Type: application/json');
-        var_dump($data);
-        exit;
-        echo json_encode($data);
+        echo json_encode($data, JSON_PRETTY_PRINT);
 
         return $this;
     }
