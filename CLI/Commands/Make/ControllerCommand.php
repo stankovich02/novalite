@@ -56,7 +56,7 @@ class ControllerCommand implements CommandInterface
         if(isset($args[1])){
             $controllerContent = match ($args[1]) {
                 '--api' => "<?php\n\nnamespace $namespace\n\nuse NovaLite\Http\Controller;\nuse NovaLite\Http\Request;\n\nclass $controllerName extends Controller\n{\n\tpublic function index()\n\t{\n\t\t//\n\t}\n\n\tpublic function store(Request \$request)\n\t{\n\t\t//\n\t}\n\n\tpublic function show(string \$id)\n\t{\n\t\t//\n\t}\n\n\tpublic function update(Request \$request, string \$id)\n\t{\n\t\t//\n\t}\n\n\tpublic function destroy(string \$id)\n\t{\n\t\t//\n\t}\n}\n",
-                '--resource' => $this->getResourceControllerContent($controllerName,$modelName),
+                '--resource' => $this->getResourceControllerContent($controllerName,$modelName, $namespace),
             };
         }
         else{
@@ -66,13 +66,13 @@ class ControllerCommand implements CommandInterface
         $controllerPath = realpath($controllerPath);
         $this->printCard('INFO', "Controller \033[1m[$controllerPath]\033[0m created successfully.");
     }
-    private function getResourceControllerContent($controllerName, $modelName) : string
+    private function getResourceControllerContent($controllerName, $modelName, $namespace) : string
     {
         if(isset($modelName)){
-            return "<?php\n\nnamespace App\Controllers;\n\nuse NovaLite\Http\Controller;\nuse App\Requests\Store" .
+            return "<?php\n\nnamespace $namespace\n\nuse NovaLite\Http\Controller;\nuse App\Requests\Store" .
                 $modelName . "Request;\nuse App\Requests\Update" .
                 $modelName . "Request;\n\nclass $controllerName extends Controller\n{\n\tpublic function index()\n\t{\n\t\t//\n\t}\n\n\tpublic function create()\n\t{\n\t\t//\n\t}\n\n\tpublic function store(Store" . $modelName . "Request \$request)\n\t{\n\t\t//\n\t}\n\n\tpublic function show(string \$id)\n\t{\n\t\t//\n\t}\n\n\tpublic function edit(string \$id)\n\t{\n\t\t//\n\t}\n\n\tpublic function update(Update"  . $modelName . "Request \$request, string \$id)\n\t{\n\t\t//\n\t}\n\n\tpublic function destroy(string \$id)\n\t{\n\t\t//\n\t}\n}\n";
         }
-        return "<?php\n\nnamespace App\Controllers;\n\nuse NovaLite\Http\Controller;\nuse NovaLite\Http\Request;\n\nclass $controllerName extends Controller\n{\n\tpublic function index()\n\t{\n\t\t//\n\t}\n\n\tpublic function create()\n\t{\n\t\t//\n\t}\n\n\tpublic function store(Request \$request)\n\t{\n\t\t//\n\t}\n\n\tpublic function show(string \$id)\n\t{\n\t\t//\n\t}\n\n\tpublic function edit(string \$id)\n\t{\n\t\t//\n\t}\n\n\tpublic function update(Request \$request, string \$id)\n\t{\n\t\t//\n\t}\n\n\tpublic function destroy(string \$id)\n\t{\n\t\t//\n\t}\n}\n";
+        return "<?php\n\nnamespace $namespace\n\nuse NovaLite\Http\Controller;\nuse NovaLite\Http\Request;\n\nclass $controllerName extends Controller\n{\n\tpublic function index()\n\t{\n\t\t//\n\t}\n\n\tpublic function create()\n\t{\n\t\t//\n\t}\n\n\tpublic function store(Request \$request)\n\t{\n\t\t//\n\t}\n\n\tpublic function show(string \$id)\n\t{\n\t\t//\n\t}\n\n\tpublic function edit(string \$id)\n\t{\n\t\t//\n\t}\n\n\tpublic function update(Request \$request, string \$id)\n\t{\n\t\t//\n\t}\n\n\tpublic function destroy(string \$id)\n\t{\n\t\t//\n\t}\n}\n";
     }
 }
