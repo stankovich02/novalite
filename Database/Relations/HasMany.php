@@ -32,7 +32,7 @@ readonly class HasMany
     }
     public function getResults() : array
     {
-        $builder = new Builder($this->table);
+        $builder = new Builder($this->related->getTable());
         $builder->setInstance($this->related);
         return $builder->where($this->foreignKey, '=',$this->instance->{$this->localKey})->get();
     }

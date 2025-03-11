@@ -408,11 +408,8 @@ class MySQL implements QueryBuilderInterface
             $instance->{$key} = $value;
         }
         if (!empty($this->relations)) {
-            var_dump($this->relations);
             foreach ($this->relations as $relation) {
-                var_dump($relation);
                 if (method_exists($instance, $relation)) {
-                    var_dump('metod postoji');
                     $instance->{$relation} = $instance->{$relation}()->getResults();
                 }
             }
