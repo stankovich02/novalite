@@ -755,7 +755,7 @@ class MySQL implements QueryBuilderInterface
     {
         return $this->parameters;
     }
-    private function hideHiddenFields($instance): Model {
+    private function hideHiddenFields($instance): mixed {
         $attributes = $instance->attributes;
 
         foreach ($instance->hidden as $hiddenField) {

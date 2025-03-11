@@ -25,7 +25,7 @@ abstract class Model
     {
         self::$pdo = $pdoInstance;
     }
-    public static function find($id) : self
+    public static function find($id) : mixed
     {
         $instance = new static();
         $builder = new Builder($instance->table);
