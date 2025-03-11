@@ -384,7 +384,7 @@ class MySQL implements QueryBuilderInterface
                     }
                 }
             }
-            $instance->hideHiddenFields($instance);
+            $instance = $this->hideHiddenFields($instance);
             $instances[] = $instance;
         }
 
@@ -415,7 +415,7 @@ class MySQL implements QueryBuilderInterface
                 }
             }
         }
-        $instance->hideHiddenFields($instance);
+        $instance = $this->hideHiddenFields($instance);
         return $instance;
     }
     public function find($id) : mixed
@@ -754,5 +754,16 @@ class MySQL implements QueryBuilderInterface
     public function getParameters() : array
     {
         return $this->parameters;
+    }
+    private function hideHiddenFields($instance): Model {
+        $attributes = $instance->attributes;
+
+        foreach ($instance->hidden as $hiddenField) {
+            unset($attributes[$hiddenField]);
+        }
+
+        $instance->attributes = $attributes;
+
+        return $instance;
     }
 }

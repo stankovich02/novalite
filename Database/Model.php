@@ -47,16 +47,6 @@ abstract class Model
         return $instance;*/
     }
 
-    private function hideHiddenFields($instance): void {
-        $attributes = $instance->attributes;
-
-        foreach ($this->hidden as $hiddenField) {
-            unset($attributes[$hiddenField]);
-        }
-
-        $instance->attributes = $attributes;
-    }
-
     public static function all() : array
     {
         $instance = new static();

@@ -375,7 +375,7 @@ class PostgreSQL implements QueryBuilderInterface
                     }
                 }
             }
-
+            $instance = $this->hideHiddenFields($instance);
             $instances[] = $instance;
         }
         return $instances;
@@ -405,6 +405,7 @@ class PostgreSQL implements QueryBuilderInterface
                 }
             }
         }
+        $instance = $this->hideHiddenFields($instance);
         return $instance;
     }
     public function find($id) : mixed
@@ -718,16 +719,12 @@ class PostgreSQL implements QueryBuilderInterface
             'data' => $this->get()
         ];
     }
-    public function with($instance,...$relations) : QueryBuilderInterface
+    public function with($instance,...$relations) : self
     {
         $this->instance = $instance;
-        $rows = $this->get();
-        foreach ($relations as $relation) {
-            foreach ($rows as $row) {
-                $row->{$relation} = $row->{$relation}()->getResults();
-            }
-        }
-        return $rows;
+        $this->relations = $relations;
+
+        return $this;
     }
     public function getQuery() : string
     {
@@ -745,5 +742,16 @@ class PostgreSQL implements QueryBuilderInterface
         $this->parameters[$placeholder] = $value;
 
         return $this;
+    }
+    private function hideHiddenFields($instance): Model {
+        $attributes = $instance->attributes;
+
+        foreach ($instance->hidden as $hiddenField) {
+            unset($attributes[$hiddenField]);
+        }
+
+        $instance->attributes = $attributes;
+
+        return $instance;
     }
 }
