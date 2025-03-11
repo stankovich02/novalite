@@ -423,8 +423,9 @@ class MySQL implements QueryBuilderInterface
     public function find($instance, $id) : mixed
     {
         $this->instance = $instance;
-        $this->query = "SELECT * FROM $this->table WHERE $instance->primaryKey = :{$instance->primaryKey}";
-        $this->parameters = [":{$instance->primaryKey}" => $id];
+        $primaryKey = $instance->primaryKey ?? 'id';
+        $this->query = "SELECT * FROM $this->table WHERE $primaryKey = :" . $primaryKey;
+        $this->parameters = [":" . $primaryKey => $id];
         return $this->first();
     }
     public function groupBy(string ...$columns) : self
