@@ -64,6 +64,7 @@ class MySQL implements QueryBuilderInterface
     }
     public function where(string $column, string $operator, string $value) : self
     {
+        var_dump($column,$operator,$value);
         $clause = str_contains($this->query, 'WHERE') ? ' AND' : ' WHERE';
         $this->query .= "$clause $column $operator :$column";
 
@@ -362,9 +363,11 @@ class MySQL implements QueryBuilderInterface
         $statement->execute($this->parameters);
         $rows = $statement->fetchAll();
         if($this->instance === null) {
+            var_dump('instanca je null');
             return $rows;
         }
         if(count($rows) === 0) {
+            var_dump('nema redova');
             return [];
         }
         $instances = [];

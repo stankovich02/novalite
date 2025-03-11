@@ -32,9 +32,6 @@ readonly class HasMany
     }
     public function getResults() : array
     {
-        echo "<pre>";
-        var_dump($this, $this->related, $this->related->getTable(),$this->instance, $this->table, $this->foreignKey, $this->localKey);
-        echo "</pre>";
         $builder = new Builder($this->related->getTable());
         $builder->setInstance($this->related);
         return $builder->where($this->foreignKey, '=',$this->instance->{$this->localKey})->get();
