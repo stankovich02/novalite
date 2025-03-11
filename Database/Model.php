@@ -28,6 +28,7 @@ abstract class Model
     public static function find($id) : mixed
     {
         $instance = new static();
+        $instance = $instance->hideHiddenFields($instance);
         $builder = new Builder($instance->table);
         return $builder->find($instance, $id);
        /* $instance = new static();
@@ -219,6 +220,19 @@ abstract class Model
             $instances[] = $instance->attributes;
         }
         return $instances;
+    }
+    private function hideHiddenFields($instance): mixed {
+        $attributes = $instance->attributes;
+
+        foreach ($instance->hidden as $hiddenField) {
+            unset($attributes[$hiddenField]);
+        }
+        var_dump($attributes);
+        exit;
+
+        $instance->attributes = $attributes;
+
+        return $instance;
     }
     public function getTable() : string
     {
