@@ -15,6 +15,8 @@ class MySQL implements QueryBuilderInterface
     private $instance = null;
     private array $parameters = [];
 
+    private array $relations = [];
+
     public function __construct(string $table)
     {
         $this->table = $table;
@@ -375,6 +377,14 @@ class MySQL implements QueryBuilderInterface
                 $instance->{$key} = $value;
             }
 
+            if (!empty($this->relations)) {
+                foreach ($this->relations as $relation) {
+                    if (method_exists($instance, $relation)) {
+                        $instance->{$relation} = $instance->{$relation}()->getResults();
+                    }
+                }
+            }
+
             $instances[] = $instance;
         }
         return $instances;
@@ -396,6 +406,13 @@ class MySQL implements QueryBuilderInterface
         $instance->{$primaryKey} = $row->{$primaryKey} ?? null;
         foreach ($row as $key => $value) {
             $instance->{$key} = $value;
+        }
+        if (!empty($this->relations)) {
+            foreach ($this->relations as $relation) {
+                if (method_exists($instance, $relation)) {
+                    $instance->{$relation} = $instance->{$relation}()->getResults();
+                }
+            }
         }
         return $instance;
     }
@@ -715,16 +732,12 @@ class MySQL implements QueryBuilderInterface
             'data' => $this->get()
         ];
     }
-    public function with($instance,...$relations) : array
+    public function with($instance,...$relations) : self
     {
         $this->instance = $instance;
-        $rows = $this->get();
-        foreach ($relations as $relation) {
-            foreach ($rows as $row) {
-                $row->{$relation} = $row->{$relation}()->getResults();
-            }
-        }
-        return $rows;
+        $this->relations = $relations;
+
+        return $this;
     }
     public function getQuery() : string
     {

@@ -164,7 +164,7 @@ abstract class Model
         return $statement->execute();
     }
 
-    public static function with(string ...$relations) : array
+    public static function with(string ...$relations) : QueryBuilderInterface
     {
         $instance = new static();
         $builder = new Builder($instance->table);

@@ -14,6 +14,7 @@ class PostgreSQL implements QueryBuilderInterface
     private string $table;
     private $instance = null;
     private array $parameters = [];
+    private array $relations = [];
 
     public function __construct(string $table)
     {
@@ -367,6 +368,14 @@ class PostgreSQL implements QueryBuilderInterface
                 $instance->{$key} = $value;
             }
 
+            if (!empty($this->relations)) {
+                foreach ($this->relations as $relation) {
+                    if (method_exists($instance, $relation)) {
+                        $instance->{$relation} = $instance->{$relation}()->getResults();
+                    }
+                }
+            }
+
             $instances[] = $instance;
         }
         return $instances;
@@ -389,7 +398,13 @@ class PostgreSQL implements QueryBuilderInterface
         foreach ($row as $key => $value) {
             $instance->{$key} = $value;
         }
-
+        if (!empty($this->relations)) {
+            foreach ($this->relations as $relation) {
+                if (method_exists($instance, $relation)) {
+                    $instance->{$relation} = $instance->{$relation}()->getResults();
+                }
+            }
+        }
         return $instance;
     }
     public function groupBy(string ...$columns) : self
@@ -697,7 +712,7 @@ class PostgreSQL implements QueryBuilderInterface
             'data' => $this->get()
         ];
     }
-    public function with($instance,...$relations) : array
+    public function with($instance,...$relations) : QueryBuilderInterface
     {
         $this->instance = $instance;
         $rows = $this->get();

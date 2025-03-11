@@ -72,7 +72,7 @@ interface QueryBuilderInterface
     function upsert(array $data) : bool;
     function truncate() : bool;
     function paginate(int $perPage): array;
-    function with($instance,...$relations) : array;
+    function with($instance,...$relations) : self;
     function get() : array;
     function first() : mixed;
     function getQuery() : string;

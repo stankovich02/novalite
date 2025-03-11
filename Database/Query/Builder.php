@@ -409,7 +409,7 @@ class Builder implements QueryBuilderInterface
     {
         return $this->connectionInstance->paginate($perPage);
     }
-    public function with($instance,...$relations) : array
+    public function with($instance,...$relations) : QueryBuilderInterface
     {
         return $this->connectionInstance->with($instance,...$relations);
     }
