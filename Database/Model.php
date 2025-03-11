@@ -31,21 +31,6 @@ abstract class Model
         $builder = new Builder($instance->table);
         $instance = $builder->find($instance, $id);
         return $instance->hideHiddenFields($instance);
-       /* $instance = new static();
-        $table = $instance->guessTableName($instance);
-        $sql = "SELECT * FROM " . $table . " WHERE {$instance->primaryKey} = :id";
-        $statement = self::$pdo->prepare($sql);
-        $statement->bindValue(':id', $id);
-        $statement->execute();
-        $data =  $statement->fetch();
-        if($data) {
-            foreach ($data as $key => $value) {
-                $instance->{$key} = $value;
-            }
-            $instance->exists = true;
-        }
-        $instance->hideHiddenFields($instance);
-        return $instance;*/
     }
 
     public static function all() : array
