@@ -413,9 +413,9 @@ class Builder implements QueryBuilderInterface
     {
         return $this->connectionInstance->with($instance,...$relations);
     }
-    public function find($id) : mixed
+    public function find($instance, $id) : mixed
     {
-        return $this->connectionInstance->find($id);
+        return $this->connectionInstance->find($instance, $id);
     }
     function getQuery(): string
     {

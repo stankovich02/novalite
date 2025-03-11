@@ -29,7 +29,7 @@ abstract class Model
     {
         $instance = new static();
         $builder = new Builder($instance->table);
-        return $builder->find($id);
+        return $builder->find($instance, $id);
        /* $instance = new static();
         $table = $instance->guessTableName($instance);
         $sql = "SELECT * FROM " . $table . " WHERE {$instance->primaryKey} = :id";

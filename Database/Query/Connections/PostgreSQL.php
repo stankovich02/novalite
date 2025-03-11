@@ -408,10 +408,11 @@ class PostgreSQL implements QueryBuilderInterface
         $instance = $this->hideHiddenFields($instance);
         return $instance;
     }
-    public function find($id) : mixed
+    public function find($instance, $id) : mixed
     {
-        $this->query = "SELECT * FROM $this->table WHERE id = :id";
-        $this->parameters = [':id' => $id];
+        $this->instance = $instance;
+        $this->query = "SELECT * FROM $this->table WHERE $instance->primaryKey = :{$instance->primaryKey}";
+        $this->parameters = [":{$instance->primaryKey}" => $id];
         return $this->first();
     }
     public function groupBy(string ...$columns) : self
