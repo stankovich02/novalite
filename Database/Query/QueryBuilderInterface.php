@@ -2,6 +2,8 @@
 
 namespace NovaLite\Database\Query;
 
+use NovaLite\Database\Model;
+
 interface QueryBuilderInterface
 {
     function setInstance($instance) : void;
@@ -73,7 +75,7 @@ interface QueryBuilderInterface
     function truncate() : bool;
     function paginate(int $perPage): array;
     function with($instance,...$relations) : self;
-    function find($instance, $id) : mixed;
+    function find($instance, $id) : \stdClass|Model|null;
     function get() : array;
     function first() : mixed;
     function getQuery() : string;

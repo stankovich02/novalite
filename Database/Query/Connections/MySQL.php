@@ -416,7 +416,7 @@ class MySQL implements QueryBuilderInterface
         }
         return $instance;
     }
-    public function find($instance, $id) : mixed
+    public function find($instance, $id) : \stdClass|Model|null
     {
         $this->instance = $instance;
         $primaryKey = $instance->primaryKey ?? 'id';

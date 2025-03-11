@@ -25,12 +25,12 @@ abstract class Model
     {
         self::$pdo = $pdoInstance;
     }
-    public static function find($id) : mixed
+    public static function find($id) : \stdClass|Model|null
     {
         $instance = new static();
-        $instance = $instance->hideHiddenFields($instance);
         $builder = new Builder($instance->table);
-        return $builder->find($instance, $id);
+        $instance = $builder->find($instance, $id);
+        return $instance->hideHiddenFields($instance);
        /* $instance = new static();
         $table = $instance->guessTableName($instance);
         $sql = "SELECT * FROM " . $table . " WHERE {$instance->primaryKey} = :id";

@@ -4,6 +4,7 @@ namespace NovaLite\Database\Query;
 
 use NovaLite\Application;
 use NovaLite\Database\Database;
+use NovaLite\Database\Model;
 use NovaLite\Database\Query\Connections\MySQL;
 use NovaLite\Database\Query\Connections\PostgreSQL;
 use NovaLite\Exceptions\ModelNotFoundException;
@@ -413,7 +414,7 @@ class Builder implements QueryBuilderInterface
     {
         return $this->connectionInstance->with($instance,...$relations);
     }
-    public function find($instance, $id) : mixed
+    public function find($instance, $id) : \stdClass|Model|null
     {
         return $this->connectionInstance->find($instance, $id);
     }
