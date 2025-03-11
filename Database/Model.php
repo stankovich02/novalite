@@ -222,13 +222,14 @@ abstract class Model
         return $instances;
     }
     private function hideHiddenFields($instance): mixed {
+        var_dump($instance);
+        exit;
         $attributes = $instance->attributes;
 
         foreach ($instance->hidden as $hiddenField) {
             unset($attributes[$hiddenField]);
         }
-        var_dump($attributes);
-        exit;
+
 
         $instance->attributes = $attributes;
 
