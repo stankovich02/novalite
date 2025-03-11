@@ -393,6 +393,8 @@ class MySQL implements QueryBuilderInterface
     public function first() : mixed
     {
         $statement = Application::$app->db->prepare($this->query);
+        var_dump($this->parameters);
+        exit;
         $statement->execute($this->parameters);
         $row = $statement->fetch();
         if($this->instance === null) {
