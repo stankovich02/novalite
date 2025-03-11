@@ -25,9 +25,12 @@ abstract class Model
     {
         self::$pdo = $pdoInstance;
     }
-    public static function find($id) : static
+    public static function find($id) : self
     {
         $instance = new static();
+        $builder = new Builder($instance->table);
+        return $builder->find($id);
+       /* $instance = new static();
         $table = $instance->guessTableName($instance);
         $sql = "SELECT * FROM " . $table . " WHERE {$instance->primaryKey} = :id";
         $statement = self::$pdo->prepare($sql);
@@ -41,7 +44,7 @@ abstract class Model
             $instance->exists = true;
         }
         $instance->hideHiddenFields($instance);
-        return $instance;
+        return $instance;*/
     }
 
     private function hideHiddenFields($instance): void {

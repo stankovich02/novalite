@@ -384,9 +384,10 @@ class MySQL implements QueryBuilderInterface
                     }
                 }
             }
-
+            $instance->hideHiddenFields($instance);
             $instances[] = $instance;
         }
+
         return $instances;
     }
     public function first() : mixed
@@ -414,7 +415,14 @@ class MySQL implements QueryBuilderInterface
                 }
             }
         }
+        $instance->hideHiddenFields($instance);
         return $instance;
+    }
+    public function find($id) : mixed
+    {
+        $this->query = "SELECT * FROM $this->table WHERE id = :id";
+        $this->parameters = [':id' => $id];
+        return $this->first();
     }
     public function groupBy(string ...$columns) : self
     {

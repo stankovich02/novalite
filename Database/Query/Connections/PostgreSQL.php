@@ -407,6 +407,12 @@ class PostgreSQL implements QueryBuilderInterface
         }
         return $instance;
     }
+    public function find($id) : mixed
+    {
+        $this->query = "SELECT * FROM $this->table WHERE id = :id";
+        $this->parameters = [':id' => $id];
+        return $this->first();
+    }
     public function groupBy(string ...$columns) : self
     {
         $columns = implode('", ', $columns);

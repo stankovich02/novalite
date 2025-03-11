@@ -389,7 +389,7 @@ class Builder implements QueryBuilderInterface
     {
         $this->connectionInstance->update($data);
 
-        return $this;
+        return true;
     }
     public function upsert(array $data) : bool
     {
@@ -399,7 +399,7 @@ class Builder implements QueryBuilderInterface
     {
         $this->connectionInstance->delete();
 
-        return $this;
+        return true;
     }
     public function truncate() : bool
     {
@@ -413,7 +413,10 @@ class Builder implements QueryBuilderInterface
     {
         return $this->connectionInstance->with($instance,...$relations);
     }
-
+    public function find($id) : mixed
+    {
+        return $this->connectionInstance->find($id);
+    }
     function getQuery(): string
     {
         return '';

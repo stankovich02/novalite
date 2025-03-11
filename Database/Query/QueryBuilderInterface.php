@@ -73,6 +73,7 @@ interface QueryBuilderInterface
     function truncate() : bool;
     function paginate(int $perPage): array;
     function with($instance,...$relations) : self;
+    function find($id) : mixed;
     function get() : array;
     function first() : mixed;
     function getQuery() : string;
