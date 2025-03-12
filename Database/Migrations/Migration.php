@@ -71,6 +71,16 @@ class Migration
             $this->appendColumn($this->wrapColumn('id') . " BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY");
         }
     }
+    public function primary(array|string $columns) : void
+    {
+        if ($this->connection == 'pgsql') {
+            $columns = array_map(fn($column) => "\"$column\"", $columns);
+            $this->indexes[] = "PRIMARY KEY (" . implode(", ", $columns) . ")";
+        } else {
+            $columns = array_map(fn($column) => "`$column`", $columns);
+            $this->indexes[] = "PRIMARY KEY (" . implode(", ", $columns) . ")";
+        }
+    }
     public function string($column, $length = 255) : Column
     {
         $this->appendColumn($this->wrapColumn($column) . " VARCHAR($length) NOT NULL");
