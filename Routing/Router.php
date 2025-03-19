@@ -64,7 +64,7 @@ class Router{
         self::$addedRouteToMethod = 'delete';
         return self::$router;
     }
-    public static function resource(string $name, string|null $controller) : void
+    public static function resource(string $name, string $controller = null) : void
     {
         if(!str_starts_with($name, '/')){
             $name = '/' . $name;
