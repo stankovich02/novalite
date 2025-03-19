@@ -355,7 +355,10 @@ class Request
     {
         return $this->getAll()[$key] ?? null;
     }
-
+    public function query(string $key)
+    {
+        return $_GET[$key] ?? null;
+    }
     public function file(string $key): UploadedFile
     {
         return new UploadedFile($_FILES[$key]);
