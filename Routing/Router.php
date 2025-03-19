@@ -64,10 +64,16 @@ class Router{
         self::$addedRouteToMethod = 'delete';
         return self::$router;
     }
-    public static function resource(string $name, string $controller) : void
+    public static function resource(string $name, string|null $controller) : void
     {
         if(!str_starts_with($name, '/')){
             $name = '/' . $name;
+        }
+        if($controller === null && isset(self::$router->groupOptions['controller'])){
+            $controller = self::$router->groupOptions['controller'];
+        }
+        else{
+            throw new \Exception('Controller is not defined for resource ' . $name);
         }
         self::get($name, [$controller, 'index']);
         self::get($name . '/create', [$controller, 'create']);
