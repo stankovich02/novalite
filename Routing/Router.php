@@ -61,7 +61,7 @@ class Router{
     {
         $path = self::$router->applyGroupOptions($path, $action);
         self::$router->routes['delete'][$path] = $action;
-
+        self::$addedRouteToMethod = 'delete';
         return self::$router;
     }
     public static function resource(string $name, string $controller) : void
