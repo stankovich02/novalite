@@ -85,6 +85,8 @@ class Router{
         if (isset($this->groupOptions['controller'])) {
             $controller = $this->groupOptions['controller'];
             foreach ($this->routes as $method => $routes) {
+                var_dump($routes);
+                exit;
                 foreach ($routes as $path => $callback) {
                     if (is_string($callback[1]) && !method_exists($controller, $callback[1])) {
                         throw new \Exception("Method '$callback[1]' does not exist in $controller.");
