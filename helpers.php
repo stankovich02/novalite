@@ -4,6 +4,7 @@ use NovaLite\Application;
 use NovaLite\Http\RedirectResponse;
 use NovaLite\Http\Response;
 use NovaLite\Sessions\Session;
+use NovaLite\Views\View;
 
 if (!function_exists('view')) {
     /**
@@ -13,9 +14,11 @@ if (!function_exists('view')) {
      * @param  array  $params
      * @return string
      */
-    function view(string $viewPath, array $params = []) : string
+    function view(string $viewPath, array $params = []) : View
     {
-        return Application::$view->renderView($viewPath, $params);
+        Application::$view->setParams($params);
+        Application::$view->setPath($viewPath);
+        return Application::$view;
     }
 }
 if (!function_exists('asset')) {

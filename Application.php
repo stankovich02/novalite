@@ -52,6 +52,10 @@ class Application
                 $response->send();
                 return;
             }
+            if($response instanceof View){
+                echo $response->renderView();
+                return;
+            }
 
             echo $response;
         }

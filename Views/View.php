@@ -16,6 +16,8 @@ use NovaLite\Validations\ValidationError;
 class View
 {
     protected Factory $viewFactory;
+    private array $params = [];
+    private string $path = '';
 
     public function __construct($viewsPath, $cachePath)
     {
@@ -37,11 +39,20 @@ class View
         $this->viewFactory->share('errors', $_SESSION['errors'] ?? new ValidationError([]));
     }
 
-    public function renderView($view, $data = []) : string
+    public function renderView() : string
     {
-        if(str_contains($view, '.')){
-            $view = str_replace('.', '/', $view);
+        if(str_contains($this->path, '.')){
+            $this->path = str_replace('.', '/', $this->path);
         }
-        return $this->viewFactory->make($view, $data)->render();
+        return $this->viewFactory->make($this->path, $this->params)->render();
+    }
+
+    public function setParams(array $params) : void
+    {
+        $this->params = $params;
+    }
+    public function setPath(string $path) : void
+    {
+        $this->path = $path;
     }
 }
