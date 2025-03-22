@@ -149,4 +149,12 @@ class Column
 
         return $this;
     }
+    public function change() : void
+    {
+        $columns = $this->table->getColumns();
+        $lastColumn = end($columns);
+        $modifiedColumn = "MODIFY COLUMN $lastColumn";
+        $columns[count($columns) - 1] = $modifiedColumn;
+        $this->table->setColumns($columns);
+    }
 }
