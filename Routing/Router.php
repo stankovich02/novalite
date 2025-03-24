@@ -321,7 +321,7 @@ class Router{
                     $finalParams[] = $class;
                 }
             } else {
-                $finalParams[] = array_shift($params[$name]);
+                $finalParams[] = $params[$name];
             }
         }
 
