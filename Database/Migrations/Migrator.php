@@ -55,7 +55,7 @@ class Migrator
             $value = round($executionTime, 2) . "ms \033[32mDONE\033[0m";
             echo " $migration ";
             echo str_repeat(".", $instance->max - strlen(" $migration ") - strlen($value));
-            echo " $value" . PHP_EOL . PHP_EOL . PHP_EOL;
+            echo " $value" . PHP_EOL;
             $newMigrations[] = $migration;
         }
 
