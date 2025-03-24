@@ -13,11 +13,11 @@ trait Relationships
     use TableGuess;
     public function hasOne(string $related, $foreignKey = null, $localKey = null) : HasOne
     {
-        $relatedInstance = new $related();
-        $selfTable = $this->guessTableName($this);
-        $relatedTable = $this->guessTableName($relatedInstance);
-        $localKey = $localKey ?? $this->primaryKey;
-        $foreignKey = $foreignKey ?? $this->guessForeignKey($selfTable,$localKey);
+        $relatedInstance = new $related();//instanca PostNotifications
+        $selfTable = $this->guessTableName($this);//notifications
+        $relatedTable = $this->guessTableName($relatedInstance);//posts_notifications
+        $localKey = $localKey ?? $this->primaryKey;//id
+        $foreignKey = $foreignKey ?? $this->guessForeignKey($selfTable,$localKey);//notification_id
 
         return new HasOne($relatedInstance, $this, $relatedTable, $foreignKey, $localKey);
     }
