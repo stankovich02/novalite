@@ -379,8 +379,15 @@ class MySQL implements QueryBuilderInterface
 
             if (!empty($this->relations)) {
                 foreach ($this->relations as $relation) {
-                    if (method_exists($instance, $relation)) {
-                        $instance->{$relation} = $instance->{$relation}()->getResults();
+                    if(str_contains($relation, '.')) {
+                        $relations = explode('.', $relation);
+                        $relatedInstance = $instance->{$relations[0]}()->getRelated();
+                        $instance->{$relations[0]}->{$relations[1]} = $relatedInstance->{$relations[1]}()->getResults();
+                    }
+                    else{
+                        if (method_exists($instance, $relation)) {
+                            $instance->{$relation} = $instance->{$relation}()->getResults();
+                        }
                     }
                 }
             }
@@ -409,8 +416,15 @@ class MySQL implements QueryBuilderInterface
         }
         if (!empty($this->relations)) {
             foreach ($this->relations as $relation) {
-                if (method_exists($instance, $relation)) {
-                    $instance->{$relation} = $instance->{$relation}()->getResults();
+                if(str_contains($relation, '.')) {
+                    $relations = explode('.', $relation);
+                    $relatedInstance = $instance->{$relations[0]}()->getRelated();
+                    $instance->{$relations[0]}->{$relations[1]} = $relatedInstance->{$relations[1]}()->getResults();
+                }
+                else{
+                    if (method_exists($instance, $relation)) {
+                        $instance->{$relation} = $instance->{$relation}()->getResults();
+                    }
                 }
             }
         }
