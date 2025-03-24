@@ -226,7 +226,7 @@ class Router{
                     if (!preg_match("/^$pattern$/", $pathParts[$index])) {
                         return view('_404');
                     }
-                    $params[] = $pathParts[$index];
+                    $params[$part] = $pathParts[$index];
                 } elseif ($part !== $pathParts[$index]) {
                     $matched = false;
                     break;
@@ -301,23 +301,12 @@ class Router{
     }
     private function callControllerMethod($controller, $method, $params = [])
     {
-        var_dump($controller);
-        var_dump($method);
-        var_dump($params);
         $reflectionMethod = new \ReflectionMethod($controller, $method);
-
-        $allParams = ['request' => $this->request, 'response' => $this->response];
-
-        foreach ($params as $index => $value) {
-            $allParams['param_' . $index] = $value;
-        }
 
         $finalParams = [];
         foreach ($reflectionMethod->getParameters() as $parameter) {
             $name = $parameter->getName();
             $type = $parameter->getType();
-            var_dump($name);
-            var_dump($type);
 
             if ($type && !$type->isBuiltin()) {
                 $typeName = $type->getName();
@@ -332,7 +321,7 @@ class Router{
                     $finalParams[] = $class;
                 }
             } else {
-                $finalParams[] = array_shift($params);
+                $finalParams[] = array_shift($params[$name]);
             }
         }
 
