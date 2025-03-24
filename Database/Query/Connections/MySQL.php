@@ -381,8 +381,15 @@ class MySQL implements QueryBuilderInterface
                 foreach ($this->relations as $relation) {
                     if(str_contains($relation, '.')) {
                         $relations = explode('.', $relation);
-                        $relatedInstance = $instance->{$relations[0]}()->getRelated();
-                        $instance->{$relations[0]}->{$relations[1]} = $relatedInstance->{$relations[1]}()->getResults();
+                        $relationInstance = $instance->{$relations[0]};
+                        if(is_array($relationInstance)) {
+                            foreach ($relationInstance as $relInst) {
+                                $relInst->{$relations[1]} = $relInst->{$relations[1]}()->getResults();
+                            }
+                        }
+                        else{
+                            $relationInstance->{$relations[1]} = $relationInstance->{$relations[1]}()->getResults();
+                        }
                     }
                     else{
                         if (method_exists($instance, $relation)) {

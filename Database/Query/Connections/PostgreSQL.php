@@ -370,8 +370,22 @@ class PostgreSQL implements QueryBuilderInterface
 
             if (!empty($this->relations)) {
                 foreach ($this->relations as $relation) {
-                    if (method_exists($instance, $relation)) {
-                        $instance->{$relation} = $instance->{$relation}()->getResults();
+                    if(str_contains($relation, '.')) {
+                        $relations = explode('.', $relation);
+                        $relationInstance = $instance->{$relations[0]};
+                        if(is_array($relationInstance)) {
+                            foreach ($relationInstance as $relInst) {
+                                $relInst->{$relations[1]} = $relInst->{$relations[1]}()->getResults();
+                            }
+                        }
+                        else{
+                            $relationInstance->{$relations[1]} = $relationInstance->{$relations[1]}()->getResults();
+                        }
+                    }
+                    else{
+                        if (method_exists($instance, $relation)) {
+                            $instance->{$relation} = $instance->{$relation}()->getResults();
+                        }
                     }
                 }
             }
@@ -400,15 +414,29 @@ class PostgreSQL implements QueryBuilderInterface
         }
         if (!empty($this->relations)) {
             foreach ($this->relations as $relation) {
-                if (method_exists($instance, $relation)) {
-                    $instance->{$relation} = $instance->{$relation}()->getResults();
+                if(str_contains($relation, '.')) {
+                    $relations = explode('.', $relation);
+                    $relationInstance = $instance->{$relations[0]};
+                    if(is_array($relationInstance)) {
+                        foreach ($relationInstance as $relInst) {
+                            $relInst->{$relations[1]} = $relInst->{$relations[1]}()->getResults();
+                        }
+                    }
+                    else{
+                        $relationInstance->{$relations[1]} = $relationInstance->{$relations[1]}()->getResults();
+                    }
+                }
+                else{
+                    if (method_exists($instance, $relation)) {
+                        $instance->{$relation} = $instance->{$relation}()->getResults();
+                    }
                 }
             }
         }
         $instance = $this->hideHiddenFields($instance);
         return $instance;
     }
-    public function find($instance, $id) : mixed
+    public function find($instance, $id) : Model|null|\stdClass
     {
         $this->instance = $instance;
         $this->query = "SELECT * FROM $this->table WHERE $instance->primaryKey = :{$instance->primaryKey}";
