@@ -301,6 +301,9 @@ class Router{
     }
     private function callControllerMethod($controller, $method, $params = [])
     {
+        var_dump($controller);
+        var_dump($method);
+        var_dump($params);
         $reflectionMethod = new \ReflectionMethod($controller, $method);
 
         $allParams = ['request' => $this->request, 'response' => $this->response];
@@ -313,6 +316,8 @@ class Router{
         foreach ($reflectionMethod->getParameters() as $parameter) {
             $name = $parameter->getName();
             $type = $parameter->getType();
+            var_dump($name);
+            var_dump($type);
 
             if ($type && !$type->isBuiltin()) {
                 $typeName = $type->getName();
