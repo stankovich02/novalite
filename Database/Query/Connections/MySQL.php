@@ -425,7 +425,7 @@ class MySQL implements QueryBuilderInterface
                         }
                     }
                     else{
-                        $instance->{$relations[0]}->{$relations[1]} = $relationInstance->{$relations[1]}()->getResults();
+                        $relationInstance->{$relations[1]} = $relationInstance->{$relations[1]}()->getResults();
                     }
                 }
                 else{
