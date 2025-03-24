@@ -36,7 +36,7 @@ readonly class HasOne
         return $this->localKey;
     }
 
-    public function getResults() : Model
+    public function getResults() : Model|null
     {
         $builder = new Builder($this->table);
         $builder->setInstance($this->related);
