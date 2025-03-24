@@ -40,7 +40,6 @@ readonly class HasOne
     {
         $builder = new Builder($this->table);
         $builder->setInstance($this->related);
-        var_dump($builder->where($this->foreignKey, '=',$this->instance->{$this->localKey})->first());
         return $builder->where($this->foreignKey, '=',$this->instance->{$this->localKey})->first();
     }
 }
