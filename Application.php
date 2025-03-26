@@ -56,8 +56,6 @@ class Application
                 echo $response->renderView();
                 return;
             }
-
-            echo $response;
         }
         catch(\Exception $e){
             echo $e->getMessage();
