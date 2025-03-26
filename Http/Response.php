@@ -80,9 +80,11 @@ class Response
 
         return $this;
     }
-    public function setStatusCode(int $code) : void
+    public function setStatusCode(int $code) : self
     {
         http_response_code($code);
+
+        return $this;
     }
     public function header(string $header, string $value) : self
     {
