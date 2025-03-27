@@ -342,12 +342,19 @@ class Request
 
     public function getAll(): array
     {
-        if ($this->method() === 'get') {
+        $method = $this->method();
+
+        if ($method === 'get') {
             return $_GET;
         }
-        if ($this->method() === 'post') {
-            return $_POST;
+
+        if (in_array($method, ['post', 'patch', 'put'])) {
+            $input = file_get_contents('php://input');
+            $data = json_decode($input, true);
+
+            return is_array($data) ? $data : $_POST;
         }
+
         return [];
     }
 
