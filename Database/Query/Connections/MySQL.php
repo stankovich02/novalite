@@ -359,8 +359,6 @@ class MySQL implements QueryBuilderInterface
     }
     public function get() : array
     {
-        var_dump($this->query);
-        exit;
         $statement = Application::$app->db->prepare($this->query);
         $statement->execute($this->parameters);
         $rows = $statement->fetchAll();
