@@ -467,7 +467,6 @@ class MySQL implements QueryBuilderInterface
     public function orderBy(string $column, string $direction = 'ASC') : self
     {
         $direction = strtoupper($direction);
-        $this->query .= " ORDER BY $column $direction";
         if(!str_contains($this->query, 'ORDER BY')) {
             $this->query .= " ORDER BY $column $direction";
         } else {
