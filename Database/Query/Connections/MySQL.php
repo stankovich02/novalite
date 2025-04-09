@@ -62,7 +62,7 @@ class MySQL implements QueryBuilderInterface
 
         return $this;
     }
-    public function where(string $column, string $operator, string $value) : self
+    public function where(string $column, string $operator, string|null $value) : self
     {
         $clause = str_contains($this->query, 'WHERE') ? ' AND' : ' WHERE';
         $this->query .= "$clause $column $operator :$column";
@@ -71,7 +71,7 @@ class MySQL implements QueryBuilderInterface
 
         return $this;
     }
-    public function orWhere(string $column, string $operator, string $value) : self
+    public function orWhere(string $column, string $operator, string|null $value) : self
     {
 
         $this->query .= " OR $column $operator :$column";
@@ -80,7 +80,7 @@ class MySQL implements QueryBuilderInterface
 
         return $this;
     }
-    public function whereNot(string $column, string $operator, string $value) : self
+    public function whereNot(string $column, string $operator, string|null $value) : self
     {
         if(!str_contains($this->query, 'WHERE')) {
             $this->query .= " WHERE $column NOT $operator :$column";
@@ -92,7 +92,7 @@ class MySQL implements QueryBuilderInterface
 
         return $this;
     }
-    public function orWhereNot(string $column, string $operator, string $value) : self
+    public function orWhereNot(string $column, string $operator, string|null $value) : self
     {
         $this->query .= " OR $column NOT $operator :$column";
 
@@ -156,7 +156,7 @@ class MySQL implements QueryBuilderInterface
         $this->query .= " OR $column NOT IN (" . implode(', ', $placeholders) . ")";
         return $this;
     }
-    public function whereAny(array $columns, string $operator, string $value): self
+    public function whereAny(array $columns, string $operator, string|null $value): self
     {
         $clause = str_contains($this->query, 'WHERE') ? ' AND (' : ' WHERE (';
         $this->query .= $clause;
@@ -171,7 +171,7 @@ class MySQL implements QueryBuilderInterface
         $this->query .= implode(' OR ', $placeholders) . ')';
         return $this;
     }
-    public function whereAll(array $columns, string $operator, string $value) : self
+    public function whereAll(array $columns, string $operator, string|null $value) : self
     {
 
         $clause = str_contains($this->query, 'WHERE') ? ' AND (' : ' WHERE (';
@@ -187,7 +187,7 @@ class MySQL implements QueryBuilderInterface
         $this->query .= implode(' AND ', $placeholders) . ')';
         return $this;
     }
-    public function whereNone(array $columns, string $operator, string $value) : self
+    public function whereNone(array $columns, string $operator, string|null $value) : self
     {
         $clause = str_contains($this->query, 'WHERE') ? ' AND NOT (' : ' WHERE NOT (';
         $this->query .= $clause;
