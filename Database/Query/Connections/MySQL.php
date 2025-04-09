@@ -803,8 +803,6 @@ class MySQL implements QueryBuilderInterface
         }
         $set = rtrim($set, ', ');
         $this->query = str_replace("SELECT * FROM $this->table", "UPDATE $this->table SET $set", $this->query);
-        var_dump($this->parameters);
-        exit;
         $statement = Application::$app->db->prepare($this->query);
         return $statement->execute($this->parameters);
     }
