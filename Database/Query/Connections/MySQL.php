@@ -425,6 +425,7 @@ class MySQL implements QueryBuilderInterface
     }
     public function get() : array
     {
+
         $statement = Application::$app->db->prepare($this->query);
         $statement->execute($this->parameters);
         $rows = $statement->fetchAll();
