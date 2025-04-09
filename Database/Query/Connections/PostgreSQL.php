@@ -14,12 +14,16 @@ class PostgreSQL implements QueryBuilderInterface
     private string $table;
     private $instance = null;
     private array $parameters = [];
+    protected bool $isSubBuilder = false;
     private array $relations = [];
 
-    public function __construct(string $table)
+    public function __construct(string $table,bool $isSubBuilder = false)
     {
-        $this->table = $table;
-        $this->query = "SELECT * FROM $table";
+        $this->isSubBuilder = $isSubBuilder;
+
+        if (!$this->isSubBuilder) {
+            $this->query = "SELECT * FROM $table";
+        }
     }
     public function setInstance($instance): void
     {
@@ -67,7 +71,7 @@ class PostgreSQL implements QueryBuilderInterface
 
         $this->query .= $clause;
 
-        $subBuilder = new static($this->table);
+        $subBuilder = new static($this->table, true);
         $callback($subBuilder);
 
         $subQuery = preg_replace('/^ WHERE /', '', $subBuilder->query);
@@ -84,7 +88,7 @@ class PostgreSQL implements QueryBuilderInterface
 
         $this->query .= $clause;
 
-        $subBuilder = new static($this->table);
+        $subBuilder = new static($this->table, true);
         $callback($subBuilder);
 
         $subQuery = preg_replace('/^ WHERE /', '', $subBuilder->query);

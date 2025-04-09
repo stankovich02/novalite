@@ -14,13 +14,16 @@ class MySQL implements QueryBuilderInterface
     private string $table;
     private $instance = null;
     private array $parameters = [];
-
+    protected bool $isSubBuilder = false;
     private array $relations = [];
 
-    public function __construct(string $table)
+    public function __construct(string $table,bool $isSubBuilder = false)
     {
-        $this->table = $table;
-        $this->query = "SELECT * FROM $table";
+        $this->isSubBuilder = $isSubBuilder;
+
+        if (!$this->isSubBuilder) {
+            $this->query = "SELECT * FROM $table";
+        }
     }
     public function setInstance($instance): void
     {
@@ -68,12 +71,16 @@ class MySQL implements QueryBuilderInterface
 
         $this->query .= $clause;
 
-        $subBuilder = new static($this->table);
+        $subBuilder = new static($this->table, true);
         $callback($subBuilder);
 
-        $subQuery = preg_replace('/^ WHERE /', '', $subBuilder->query);
+        $subQuery = $subBuilder->query;
 
-        $this->query .= $subQuery . ')';
+        $subQuery = preg_replace('/^SELECT \* FROM \w+/', '', $subQuery);
+
+        $subQuery = preg_replace('/^\s*WHERE\s*/', '', $subQuery);
+
+        $this->query .= $clause . '(' . $subQuery . ')';
 
         $this->parameters = array_merge($this->parameters, $subBuilder->parameters);
 
@@ -85,12 +92,16 @@ class MySQL implements QueryBuilderInterface
 
         $this->query .= $clause;
 
-        $subBuilder = new static($this->table);
+        $subBuilder = new static($this->table, true);
         $callback($subBuilder);
 
-        $subQuery = preg_replace('/^ WHERE /', '', $subBuilder->query);
+        $subQuery = $subBuilder->query;
 
-        $this->query .= $subQuery . ')';
+        $subQuery = preg_replace('/^SELECT \* FROM \w+/', '', $subQuery);
+
+        $subQuery = preg_replace('/^\s*WHERE\s*/', '', $subQuery);
+
+        $this->query .= $clause . '(' . $subQuery . ')';
 
         $this->parameters = array_merge($this->parameters, $subBuilder->parameters);
 
@@ -99,7 +110,7 @@ class MySQL implements QueryBuilderInterface
 
     public function where(string $column, string $operator, string|null $value) : self
     {
-        $clause = str_contains($this->query, 'WHERE') ? ' AND' : ' WHERE';
+        $clause = (!$this->isSubBuilder && !str_contains($this->query, 'WHERE')) ? ' WHERE' : ' AND';
         $this->query .= "$clause $column $operator :$column";
 
         $this->parameters[":$column"] = $value;
@@ -108,7 +119,6 @@ class MySQL implements QueryBuilderInterface
     }
     public function orWhere(string $column, string $operator, string|null $value) : self
     {
-
         $this->query .= " OR $column $operator :$column";
 
         $this->parameters[":$column"] = $value;
