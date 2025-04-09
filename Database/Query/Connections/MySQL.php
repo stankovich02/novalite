@@ -112,8 +112,6 @@ class MySQL implements QueryBuilderInterface
 
     public function where(string $column, string $operator, string|null $value) : self
     {
-        $clause = ' AND';
-
         if (!$this->isSubBuilder) {
             $clause = !str_contains($this->query, 'WHERE') ? ' WHERE' : ' AND';
         } else {
@@ -805,7 +803,7 @@ class MySQL implements QueryBuilderInterface
         }
         $set = rtrim($set, ', ');
         $this->query = str_replace("SELECT * FROM $this->table", "UPDATE $this->table SET $set", $this->query);
-        var_dump($this->query);
+        var_dump($this->parameters);
         exit;
         $statement = Application::$app->db->prepare($this->query);
         return $statement->execute($this->parameters);
