@@ -22,7 +22,9 @@ class PostgreSQL implements QueryBuilderInterface
         $this->isSubBuilder = $isSubBuilder;
 
         if (!$this->isSubBuilder) {
-            $this->query = "SELECT * FROM $table";
+            $this->query = 'SELECT * FROM ' . $table;
+        } else {
+            $this->query = ''; // ← obavezno, da ne bude uninitialized!
         }
     }
     public function setInstance($instance): void
@@ -69,14 +71,13 @@ class PostgreSQL implements QueryBuilderInterface
     {
         $clause = str_contains($this->query, 'WHERE') ? ' AND (' : ' WHERE (';
 
-        $this->query .= $clause;
-
         $subBuilder = new static($this->table, true);
+
         $callback($subBuilder);
 
         $subQuery = preg_replace('/^ WHERE /', '', $subBuilder->query);
 
-        $this->query .= $subQuery . ')';
+        $this->query .= $clause . $subQuery . ')';
 
         $this->parameters = array_merge($this->parameters, $subBuilder->parameters);
 
@@ -86,14 +87,13 @@ class PostgreSQL implements QueryBuilderInterface
     {
         $clause = str_contains($this->query, 'WHERE') ? ' OR (' : ' WHERE (';
 
-        $this->query .= $clause;
-
         $subBuilder = new static($this->table, true);
+
         $callback($subBuilder);
 
         $subQuery = preg_replace('/^ WHERE /', '', $subBuilder->query);
 
-        $this->query .= $subQuery . ')';
+        $this->query .= $clause . $subQuery . ')';
 
         $this->parameters = array_merge($this->parameters, $subBuilder->parameters);
 

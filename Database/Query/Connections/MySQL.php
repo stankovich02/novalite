@@ -23,7 +23,9 @@ class MySQL implements QueryBuilderInterface
         $this->isSubBuilder = $isSubBuilder;
 
         if (!$this->isSubBuilder) {
-            $this->query = "SELECT * FROM $table";
+            $this->query = 'SELECT * FROM ' . $table;
+        } else {
+            $this->query = '';
         }
 
     }
@@ -71,9 +73,8 @@ class MySQL implements QueryBuilderInterface
     {
         $clause = str_contains($this->query, 'WHERE') ? ' AND (' : ' WHERE (';
 
-        $this->query .= $clause;
-
         $subBuilder = new static($this->table, true);
+
         $callback($subBuilder);
 
         $subQuery = $subBuilder->query;
@@ -82,7 +83,7 @@ class MySQL implements QueryBuilderInterface
 
         $subQuery = preg_replace('/^\s*WHERE\s*/', '', $subQuery);
 
-        $this->query .= $clause . '(' . $subQuery . ')';
+        $this->query .= $clause . $subQuery . ')';
 
         $this->parameters = array_merge($this->parameters, $subBuilder->parameters);
 
@@ -92,9 +93,8 @@ class MySQL implements QueryBuilderInterface
     {
         $clause = str_contains($this->query, 'WHERE') ? ' OR (' : ' WHERE (';
 
-        $this->query .= $clause;
-
         $subBuilder = new static($this->table, true);
+
         $callback($subBuilder);
 
         $subQuery = $subBuilder->query;
@@ -103,7 +103,7 @@ class MySQL implements QueryBuilderInterface
 
         $subQuery = preg_replace('/^\s*WHERE\s*/', '', $subQuery);
 
-        $this->query .= $clause . '(' . $subQuery . ')';
+        $this->query .= $clause . $subQuery . ')';
 
         $this->parameters = array_merge($this->parameters, $subBuilder->parameters);
 
