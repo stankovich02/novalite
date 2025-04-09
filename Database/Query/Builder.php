@@ -54,25 +54,25 @@ class Builder implements QueryBuilderInterface
 
         return $this;
     }
-    public function where(string $column, string $operator, string $value) : self
+    public function where(string $column, string $operator, string|null $value) : self
     {
         $this->connectionInstance->where($column, $operator, $value);
 
         return $this;
     }
-    public function orWhere(string $column, string $operator, string $value) : self
+    public function orWhere(string $column, string $operator, string|null $value) : self
     {
         $this->connectionInstance->orWhere($column, $operator, $value);
 
         return $this;
     }
-    public function whereNot(string $column, string $operator, string $value) : self
+    public function whereNot(string $column, string $operator, string|null $value) : self
     {
         $this->connectionInstance->whereNot($column, $operator, $value);
 
         return $this;
     }
-    public function orWhereNot(string $column, string $operator, string $value) : self
+    public function orWhereNot(string $column, string $operator, string|null $value) : self
     {
         $this->connectionInstance->orWhereNot($column, $operator, $value);
 
@@ -102,19 +102,19 @@ class Builder implements QueryBuilderInterface
 
         return $this;
     }
-    public function whereAny(array $columns, string $operator, string $value) : self
+    public function whereAny(array $columns, string $operator, string|null $value) : self
     {
         $this->connectionInstance->whereAny($columns, $operator, $value);
 
         return $this;
     }
-    public function whereAll(array $columns, string $operator, string $value) : self
+    public function whereAll(array $columns, string $operator, string|null $value) : self
     {
         $this->connectionInstance->whereAll($columns, $operator, $value);
 
         return $this;
     }
-    public function whereNone(array $columns, string $operator, string $value) : self
+    public function whereNone(array $columns, string $operator, string|null $value) : self
     {
         $this->connectionInstance->whereNone($columns, $operator, $value);
 
