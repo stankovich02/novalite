@@ -101,9 +101,15 @@ class PostgreSQL implements QueryBuilderInterface
     }
     public function where(string $column, string $operator, string|null $value) : self
     {
-        $clause = str_contains($this->query, 'WHERE') ? ' AND' : ' WHERE';
-        $this->query .= "$clause \"$column\" $operator :$column";
+        $clause = ' AND';
 
+        if (!$this->isSubBuilder) {
+            $clause = !str_contains($this->query, 'WHERE') ? ' WHERE' : ' AND';
+        } else {
+            $clause = trim($this->query) === '' ? '' : ' AND';
+        }
+
+        $this->query .= "$clause $column $operator :$column";
         $this->parameters[":$column"] = $value;
 
         return $this;
@@ -335,8 +341,14 @@ class PostgreSQL implements QueryBuilderInterface
 
     public function whereNull(string $column): self
     {
-        $clause = str_contains($this->query, 'WHERE') ? ' AND' : ' WHERE';
-        $this->query .= "$clause \"$column\" IS NULL";
+
+        if (!$this->isSubBuilder) {
+            $clause = !str_contains($this->query, 'WHERE') ? ' WHERE' : ' AND';
+        } else {
+            $clause = trim($this->query) === '' ? '' : ' AND';
+        }
+
+        $this->query .= "$clause $column IS NULL";
 
         return $this;
     }
@@ -350,8 +362,14 @@ class PostgreSQL implements QueryBuilderInterface
 
     public function whereNotNull(string $column): self
     {
-        $clause = str_contains($this->query, 'WHERE') ? ' AND' : ' WHERE';
-        $this->query .= "$clause \"$column\" IS NOT NULL";
+
+        if (!$this->isSubBuilder) {
+            $clause = !str_contains($this->query, 'WHERE') ? ' WHERE' : ' AND';
+        } else {
+            $clause = trim($this->query) === '' ? '' : ' AND';
+        }
+
+        $this->query .= "$clause $column IS NOT NULL";
 
         return $this;
     }

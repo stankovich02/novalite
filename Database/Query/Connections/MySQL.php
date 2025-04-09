@@ -112,7 +112,14 @@ class MySQL implements QueryBuilderInterface
 
     public function where(string $column, string $operator, string|null $value) : self
     {
-        $clause = (!$this->isSubBuilder && !str_contains($this->query, 'WHERE')) ? ' WHERE' : ' AND';
+        $clause = ' AND';
+
+        if (!$this->isSubBuilder) {
+            $clause = !str_contains($this->query, 'WHERE') ? ' WHERE' : ' AND';
+        } else {
+            $clause = trim($this->query) === '' ? '' : ' AND';
+        }
+
         $this->query .= "$clause $column $operator :$column";
 
         $this->parameters[":$column"] = $value;
@@ -355,7 +362,13 @@ class MySQL implements QueryBuilderInterface
 
     public function whereNull(string $column) : self
     {
-        $clause = str_contains($this->query, 'WHERE') ? ' AND' : ' WHERE';
+
+        if (!$this->isSubBuilder) {
+            $clause = !str_contains($this->query, 'WHERE') ? ' WHERE' : ' AND';
+        } else {
+            $clause = trim($this->query) === '' ? '' : ' AND';
+        }
+
         $this->query .= "$clause $column IS NULL";
 
         return $this;
@@ -370,7 +383,13 @@ class MySQL implements QueryBuilderInterface
 
     public function whereNotNull(string $column) : self
     {
-        $clause = str_contains($this->query, 'WHERE') ? ' AND' : ' WHERE';
+
+        if (!$this->isSubBuilder) {
+            $clause = !str_contains($this->query, 'WHERE') ? ' WHERE' : ' AND';
+        } else {
+            $clause = trim($this->query) === '' ? '' : ' AND';
+        }
+
         $this->query .= "$clause $column IS NOT NULL";
 
         return $this;
