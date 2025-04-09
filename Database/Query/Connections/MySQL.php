@@ -19,12 +19,13 @@ class MySQL implements QueryBuilderInterface
 
     public function __construct(string $table,bool $isSubBuilder = false)
     {
+        $this->table = $table;
         $this->isSubBuilder = $isSubBuilder;
 
         if (!$this->isSubBuilder) {
             $this->query = "SELECT * FROM $table";
         }
-        $this->table = $table;
+
     }
     public function setInstance($instance): void
     {
