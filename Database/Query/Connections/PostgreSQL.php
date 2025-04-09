@@ -61,6 +61,40 @@ class PostgreSQL implements QueryBuilderInterface
 
         return $this;
     }
+    public function whereGroup(callable $callback): self
+    {
+        $clause = str_contains($this->query, 'WHERE') ? ' AND (' : ' WHERE (';
+
+        $this->query .= $clause;
+
+        $subBuilder = new static($this->table);
+        $callback($subBuilder);
+
+        $subQuery = preg_replace('/^ WHERE /', '', $subBuilder->query);
+
+        $this->query .= $subQuery . ')';
+
+        $this->parameters = array_merge($this->parameters, $subBuilder->parameters);
+
+        return $this;
+    }
+    public function orWhereGroup(callable $callback): self
+    {
+        $clause = str_contains($this->query, 'WHERE') ? ' OR (' : ' WHERE (';
+
+        $this->query .= $clause;
+
+        $subBuilder = new static($this->table);
+        $callback($subBuilder);
+
+        $subQuery = preg_replace('/^ WHERE /', '', $subBuilder->query);
+
+        $this->query .= $subQuery . ')';
+
+        $this->parameters = array_merge($this->parameters, $subBuilder->parameters);
+
+        return $this;
+    }
     public function where(string $column, string $operator, string|null $value) : self
     {
         $clause = str_contains($this->query, 'WHERE') ? ' AND' : ' WHERE';

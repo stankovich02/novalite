@@ -54,6 +54,18 @@ class Builder implements QueryBuilderInterface
 
         return $this;
     }
+    public function whereGroup(callable $callback): self
+    {
+        $this->connectionInstance->whereGroup($callback);
+
+        return $this;
+    }
+    public function orWhereGroup(callable $callback): self
+    {
+        $this->connectionInstance->orWhereGroup($callback);
+
+        return $this;
+    }
     public function where(string $column, string $operator, string|null $value) : self
     {
         $this->connectionInstance->where($column, $operator, $value);

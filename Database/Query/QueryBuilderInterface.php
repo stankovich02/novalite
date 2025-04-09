@@ -12,6 +12,8 @@ interface QueryBuilderInterface
     function join(string $table, string|\Closure $first, string $operator, string $second) : self;
     function leftJoin(string $table, string|\Closure $first, string $operator, string $second) : self;
     function rightJoin(string $table, string|\Closure $first, string $operator, string $second) : self;
+    function whereGroup(callable $callback) : self;
+    function orWhereGroup(callable $callback) : self;
     function where(string $column, string $operator, string|null $value) : self;
     function orWhere(string $column, string $operator, string|null $value) : self;
     function whereNot(string $column, string $operator, string|null $value) : self;

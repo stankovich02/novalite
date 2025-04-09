@@ -54,6 +54,14 @@ abstract class Model
         $builder->setInstance($instance);
         return $builder->where($column,$operator, $value);
     }
+    public static function whereGroup(callable $callback): QueryBuilderInterface
+    {
+        $instance = new static();
+        $table = $instance->guessTableName($instance);
+        $builder = new Builder($table);
+        $builder->setInstance($instance);
+        return $builder->whereGroup($callback);
+    }
     public static function findOrFail($id) : static
     {
         $instance = self::find($id);
