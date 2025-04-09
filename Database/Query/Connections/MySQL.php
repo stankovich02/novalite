@@ -24,6 +24,7 @@ class MySQL implements QueryBuilderInterface
         if (!$this->isSubBuilder) {
             $this->query = "SELECT * FROM $table";
         }
+        $this->table = $table;
     }
     public function setInstance($instance): void
     {
