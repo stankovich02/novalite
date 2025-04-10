@@ -210,7 +210,18 @@ class Router{
                 exit;
             }
         }
+        $staticRoutes = [];
+        $dynamicRoutes = [];
+
         foreach ($this->routes[$method] as $route => $callback) {
+            if (str_contains($route, '{')) {
+                $dynamicRoutes[$route] = $callback;
+            } else {
+                $staticRoutes[$route] = $callback;
+            }
+        }
+        $allRoutes = $staticRoutes + $dynamicRoutes;
+        foreach ($allRoutes as $route => $callback) {
             $routeParts = explode('/', trim($route, '/'));
 
             if (count($routeParts) !== count($pathParts)) {
@@ -219,10 +230,7 @@ class Router{
             $matched = true;
             $params = [];
             foreach ($routeParts as $index => $part) {
-
                 if (preg_match('/^{\w+}$/', $part)) {
-                    var_dump($routeParts,$route,$callback,$method,$path);
-                    exit;
                     $part = str_replace(['{', '}'], '', $part);
                     $pattern = $callback['params'][$part] ?? '\w+';
                     if (!preg_match("/^$pattern$/", $pathParts[$index])) {
