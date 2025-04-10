@@ -177,8 +177,7 @@ class Router{
         return $path;
     }
     public function resolve(){
-        var_dump($this->routes);
-        exit;
+
         $path = $this->request->getPath();
         $method = $this->request->method();
         if($this->request->input('_method')){
@@ -198,7 +197,7 @@ class Router{
                 }
             }
             if ($matched) {
-                return new RedirectResponse($to);
+                return new RedirectResponse($to, 302);
             }
         }
         $middlewares = require Application::$ROOT_DIR . '/config/middleware.php';
@@ -222,6 +221,8 @@ class Router{
             foreach ($routeParts as $index => $part) {
 
                 if (preg_match('/^{\w+}$/', $part)) {
+                    var_dump($routeParts,$route,$callback,$method,$path);
+                    exit;
                     $part = str_replace(['{', '}'], '', $part);
                     $pattern = $callback['params'][$part] ?? '\w+';
                     if (!preg_match("/^$pattern$/", $pathParts[$index])) {
