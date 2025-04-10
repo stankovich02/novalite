@@ -177,6 +177,8 @@ class Router{
         return $path;
     }
     public function resolve(){
+        var_dump($this->routes);
+        exit;
         $path = $this->request->getPath();
         $method = $this->request->method();
         if($this->request->input('_method')){
@@ -217,8 +219,6 @@ class Router{
             }
             $matched = true;
             $params = [];
-            var_dump($route, $callback, $routeParts);
-            exit;
             foreach ($routeParts as $index => $part) {
 
                 if (preg_match('/^{\w+}$/', $part)) {
