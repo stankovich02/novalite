@@ -217,7 +217,8 @@ class Router{
             }
             $matched = true;
             $params = [];
-
+            var_dump($route, $callback, $routeParts);
+            exit;
             foreach ($routeParts as $index => $part) {
 
                 if (preg_match('/^{\w+}$/', $part)) {
