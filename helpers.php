@@ -86,12 +86,7 @@ if (!function_exists('response')) {
      */
     function response(string $content = '', int $status = 200) : Response
     {
-        if($content){
-            http_response_code($status);
-            echo $content;
-            exit;
-        }
-        return new Response($status);
+        return new Response($content,$status);
     }
 }
 if (!function_exists('session')) {

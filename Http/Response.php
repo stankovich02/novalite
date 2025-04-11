@@ -69,16 +69,30 @@ class Response
     public const HTTP_LOOP_DETECTED = 508;
     public const HTTP_NOT_EXTENDED = 510;
     public const HTTP_NETWORK_AUTHENTICATION_REQUIRED = 511;
-    public function __construct(int $status = 200)
+    private array $data = [];
+    private bool $isJson = false;
+    private string $content;
+    public function __construct(string $content = '', int $status = 200)
     {
+        $this->content = $content;
         $this->setStatusCode($status);
     }
     public function json(array $data) : self
     {
         header('Content-Type: application/json');
-        echo json_encode($data, JSON_PRETTY_PRINT);
+        $this->data = $data;
+        $this->isJson = true;
 
         return $this;
+    }
+    public function sendResponse() : void
+    {
+        if(!$this->isJson){
+            echo $this->content;
+        }
+        else{
+            echo json_encode($this->data, JSON_PRETTY_PRINT);
+        }
     }
     public function setStatusCode(int $code) : self
     {

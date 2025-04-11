@@ -56,7 +56,10 @@ class Application
                 echo $response->renderView();
                 return;
             }
-            echo $response;
+            if($response instanceof Response){
+                $response->sendResponse();
+                return;
+            }
         }
         catch(\Exception $e){
             echo $e->getMessage();
