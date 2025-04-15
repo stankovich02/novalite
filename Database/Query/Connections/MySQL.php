@@ -27,7 +27,6 @@ class MySQL implements QueryBuilderInterface
         } else {
             $this->query = '';
         }
-
     }
     public function setInstance($instance): void
     {
@@ -134,11 +133,13 @@ class MySQL implements QueryBuilderInterface
     }
     public function whereNot(string $column, string $operator, string|null $value) : self
     {
-        if(!str_contains($this->query, 'WHERE')) {
-            $this->query .= " WHERE $column NOT $operator :$column";
+        if (!$this->isSubBuilder) {
+            $clause = !str_contains($this->query, 'WHERE') ? ' WHERE' : ' AND';
         } else {
-            $this->query .= " AND $column NOT $operator :$column";
+            $clause = trim($this->query) === '' ? '' : ' AND';
         }
+
+        $this->query .= "$clause $column NOT $operator :$column";
 
         $this->parameters[":$column"] = $value;
 
@@ -154,7 +155,11 @@ class MySQL implements QueryBuilderInterface
     }
     public function whereIn(string $column, array $values): self
     {
-        $clause = str_contains($this->query, 'WHERE') ? ' AND' : ' WHERE';
+        if (!$this->isSubBuilder) {
+            $clause = !str_contains($this->query, 'WHERE') ? ' WHERE' : ' AND';
+        } else {
+            $clause = trim($this->query) === '' ? '' : ' AND';
+        }
         $placeholders = [];
 
         foreach ($values as $key => $value) {
@@ -182,7 +187,11 @@ class MySQL implements QueryBuilderInterface
     }
     public function whereNotIn(string $column, array $values): self
     {
-        $clause = str_contains($this->query, 'WHERE') ? ' AND' : ' WHERE';
+        if (!$this->isSubBuilder) {
+            $clause = !str_contains($this->query, 'WHERE') ? ' WHERE' : ' AND';
+        } else {
+            $clause = trim($this->query) === '' ? '' : ' AND';
+        }
         $placeholders = [];
 
         foreach ($values as $key => $value) {
@@ -210,7 +219,11 @@ class MySQL implements QueryBuilderInterface
     }
     public function whereAny(array $columns, string $operator, string|null $value): self
     {
-        $clause = str_contains($this->query, 'WHERE') ? ' AND (' : ' WHERE (';
+        if (!$this->isSubBuilder) {
+            $clause = !str_contains($this->query, 'WHERE') ? ' WHERE (' : ' AND (';
+        } else {
+            $clause = trim($this->query) === '' ? '' : ' AND (';
+        }
         $this->query .= $clause;
 
         $placeholders = [];
@@ -225,8 +238,11 @@ class MySQL implements QueryBuilderInterface
     }
     public function whereAll(array $columns, string $operator, string|null $value) : self
     {
-
-        $clause = str_contains($this->query, 'WHERE') ? ' AND (' : ' WHERE (';
+        if (!$this->isSubBuilder) {
+            $clause = !str_contains($this->query, 'WHERE') ? ' WHERE (' : ' AND (';
+        } else {
+            $clause = trim($this->query) === '' ? '' : ' AND (';
+        }
         $this->query .= $clause;
 
         $placeholders = [];
@@ -241,7 +257,11 @@ class MySQL implements QueryBuilderInterface
     }
     public function whereNone(array $columns, string $operator, string|null $value) : self
     {
-        $clause = str_contains($this->query, 'WHERE') ? ' AND NOT (' : ' WHERE NOT (';
+        if (!$this->isSubBuilder) {
+            $clause = !str_contains($this->query, 'WHERE') ? ' WHERE NOT (' : ' AND NOT (';
+        } else {
+            $clause = trim($this->query) === '' ? '' : ' AND NOT (';
+        }
         $this->query .= $clause;
 
         $conditions = [];
@@ -257,7 +277,11 @@ class MySQL implements QueryBuilderInterface
 
     public function whereLike(string $column, string $value) : self
     {
-        $clause = str_contains($this->query, 'WHERE') ? ' AND' : ' WHERE';
+        if (!$this->isSubBuilder) {
+            $clause = !str_contains($this->query, 'WHERE') ? ' WHERE' : ' AND';
+        } else {
+            $clause = trim($this->query) === '' ? '' : ' AND';
+        }
         $placeholder = ":{$column}_like";
         $this->query .= "$clause $column LIKE $placeholder";
         $this->parameters[$placeholder] = "%$value%";
@@ -276,7 +300,11 @@ class MySQL implements QueryBuilderInterface
 
     public function whereNotLike(string $column, string $value) : self
     {
-        $clause = str_contains($this->query, 'WHERE') ? ' AND' : ' WHERE';
+        if (!$this->isSubBuilder) {
+            $clause = !str_contains($this->query, 'WHERE') ? ' WHERE' : ' AND';
+        } else {
+            $clause = trim($this->query) === '' ? '' : ' AND';
+        }
         $placeholder = ":{$column}_not_like";
         $this->query .= "$clause $column NOT LIKE $placeholder";
         $this->parameters[$placeholder] = "%$value%";
@@ -295,7 +323,11 @@ class MySQL implements QueryBuilderInterface
 
     public function whereBetween(string $column, string $value1, string $value2) : self
     {
-        $clause = str_contains($this->query, 'WHERE') ? ' AND' : ' WHERE';
+        if (!$this->isSubBuilder) {
+            $clause = !str_contains($this->query, 'WHERE') ? ' WHERE' : ' AND';
+        } else {
+            $clause = trim($this->query) === '' ? '' : ' AND';
+        }
         $placeholder1 = ":{$column}_between_1";
         $placeholder2 = ":{$column}_between_2";
 
@@ -320,7 +352,11 @@ class MySQL implements QueryBuilderInterface
 
     public function whereNotBetween(string $column, string $value1, string $value2) : self
     {
-        $clause = str_contains($this->query, 'WHERE') ? ' AND' : ' WHERE';
+        if (!$this->isSubBuilder) {
+            $clause = !str_contains($this->query, 'WHERE') ? ' WHERE' : ' AND';
+        } else {
+            $clause = trim($this->query) === '' ? '' : ' AND';
+        }
         $placeholder1 = ":{$column}_not_between_1";
         $placeholder2 = ":{$column}_not_between_2";
 
@@ -345,7 +381,11 @@ class MySQL implements QueryBuilderInterface
 
     public function whereBetweenColumns(string $column, array $columns) : self
     {
-        $clause = str_contains($this->query, 'WHERE') ? ' AND' : ' WHERE';
+        if (!$this->isSubBuilder) {
+            $clause = !str_contains($this->query, 'WHERE') ? ' WHERE' : ' AND';
+        } else {
+            $clause = trim($this->query) === '' ? '' : ' AND';
+        }
         $this->query .= "$clause $column BETWEEN $columns[0] AND $columns[1]";
 
         return $this;
@@ -360,7 +400,6 @@ class MySQL implements QueryBuilderInterface
 
     public function whereNull(string $column) : self
     {
-
         if (!$this->isSubBuilder) {
             $clause = !str_contains($this->query, 'WHERE') ? ' WHERE' : ' AND';
         } else {
@@ -381,7 +420,6 @@ class MySQL implements QueryBuilderInterface
 
     public function whereNotNull(string $column) : self
     {
-
         if (!$this->isSubBuilder) {
             $clause = !str_contains($this->query, 'WHERE') ? ' WHERE' : ' AND';
         } else {
@@ -402,7 +440,11 @@ class MySQL implements QueryBuilderInterface
 
     public function whereColumn(string $firstColumn, string $operator, string $secondColumn) : self
     {
-        $clause = str_contains($this->query, 'WHERE') ? ' AND' : ' WHERE';
+        if (!$this->isSubBuilder) {
+            $clause = !str_contains($this->query, 'WHERE') ? ' WHERE' : ' AND';
+        } else {
+            $clause = trim($this->query) === '' ? '' : ' AND';
+        }
         $this->query .= "$clause $firstColumn $operator $secondColumn";
 
         return $this;
@@ -416,103 +458,14 @@ class MySQL implements QueryBuilderInterface
     }
     public function whereExists(QueryBuilderInterface $builder): self
     {
-        $clause = str_contains($this->query, 'WHERE') ? ' AND' : ' WHERE';
+        if (!$this->isSubBuilder) {
+            $clause = !str_contains($this->query, 'WHERE') ? ' WHERE' : ' AND';
+        } else {
+            $clause = trim($this->query) === '' ? '' : ' AND';
+        }
         $this->query .= "$clause EXISTS (" . $builder->getQuery() . ")";
         $this->parameters = array_merge($this->parameters, $builder->getParameters());
         return $this;
-    }
-    public function get() : array
-    {
-
-        $statement = Application::$app->db->prepare($this->query);
-        $statement->execute($this->parameters);
-        $rows = $statement->fetchAll();
-        if($this->instance === null) {
-            return $rows;
-        }
-        if(count($rows) === 0) {
-            return [];
-        }
-        $instances = [];
-        foreach ($rows as $row) {
-            $instance = new $this->instance();
-            $instance->exists = true;
-            $primaryKey = $instance->primaryKey ?? 'id';
-            $instance->{$primaryKey} = $row->{$primaryKey} ?? null;
-            foreach ($row as $key => $value) {
-                $instance->{$key} = $value;
-            }
-
-            if (!empty($this->relations)) {
-                foreach ($this->relations as $relation) {
-                    if(str_contains($relation, '.')) {
-                        $relations = explode('.', $relation);
-                        $relationInstance = $instance->{$relations[0]};
-                        if($relationInstance){
-                            if(is_array($relationInstance)) {
-                                foreach ($relationInstance as $relInst) {
-                                    $relInst->{$relations[1]} = $relInst->{$relations[1]}()->getResults();
-                                }
-                            }
-                            else{
-                                $relationInstance->{$relations[1]} = $relationInstance->{$relations[1]}()->getResults();
-                            }
-                        }
-                    }
-                    else{
-                        if (method_exists($instance, $relation)) {
-                            $instance->{$relation} = $instance->{$relation}()->getResults();
-                        }
-                    }
-                }
-            }
-            $instances[] = $instance;
-        }
-
-        return $instances;
-    }
-    public function first() : mixed
-    {
-        $statement = Application::$app->db->prepare($this->query);
-        $statement->execute($this->parameters);
-        $row = $statement->fetch();
-        if($this->instance === null) {
-            return $row;
-        }
-        if(!$row) {
-            return null;
-        }
-        $instance = new $this->instance();
-        $instance->exists = true;
-        $primaryKey = $instance->primaryKey ?? 'id';
-        $instance->{$primaryKey} = $row->{$primaryKey} ?? null;
-        foreach ($row as $key => $value) {
-            $instance->{$key} = $value;
-        }
-        if (!empty($this->relations)) {
-            foreach ($this->relations as $relation) {
-                if(str_contains($relation, '.')) {
-                    $relations = explode('.', $relation);
-                    $relationInstance = $instance->{$relations[0]};
-                    if($relationInstance){
-                        if(is_array($relationInstance)) {
-                            foreach ($relationInstance as $relInst) {
-                                $relInst->{$relations[1]} = $relInst->{$relations[1]}()->getResults();
-                            }
-                        }
-                        else{
-                            $relationInstance->{$relations[1]} = $relationInstance->{$relations[1]}()->getResults();
-                        }
-                    }
-                }
-                else{
-                    if (method_exists($instance, $relation)) {
-                        $instance->{$relation} = $instance->{$relation}()->getResults();
-                    }
-                }
-            }
-        }
-        return $instance;
     }
     public function find($instance, $id) : \stdClass|Model|null
     {
@@ -540,9 +493,53 @@ class MySQL implements QueryBuilderInterface
 
         return $this;
     }
+    public function havingGroup(callable $callback): self
+    {
+        $clause = str_contains($this->query, 'HAVING') ? ' AND (' : ' HAVING (';
+
+        $subBuilder = new static($this->table, true);
+
+        $callback($subBuilder);
+
+        $subQuery = $subBuilder->query;
+
+        $subQuery = preg_replace('/^SELECT \* FROM \w+/', '', $subQuery);
+
+        $subQuery = preg_replace('/^\s*HAVING\s*/', '', $subQuery);
+
+        $this->query .= $clause . $subQuery . ')';
+
+        $this->parameters = array_merge($this->parameters, $subBuilder->parameters);
+
+        return $this;
+    }
+    public function orHavingGroup(callable $callback): self
+    {
+        $clause = str_contains($this->query, 'HAVING') ? ' OR (' : ' HAVING (';
+
+        $subBuilder = new static($this->table, true);
+
+        $callback($subBuilder);
+
+        $subQuery = $subBuilder->query;
+
+        $subQuery = preg_replace('/^SELECT \* FROM \w+/', '', $subQuery);
+
+        $subQuery = preg_replace('/^\s*HAVING\s*/', '', $subQuery);
+
+        $this->query .= $clause . $subQuery . ')';
+
+        $this->parameters = array_merge($this->parameters, $subBuilder->parameters);
+
+        return $this;
+    }
     public function having(string $column, string $operator, string $value) : self
     {
-        $clause = str_contains($this->query, 'HAVING') ? ' AND' : ' HAVING';
+        if (!$this->isSubBuilder) {
+            $clause = !str_contains($this->query, 'HAVING') ? ' HAVING' : ' AND';
+        } else {
+            $clause = trim($this->query) === '' ? '' : ' AND';
+        }
         $placeholder = ":{$column}_having";
         $this->query .= "$clause $column $operator $placeholder";
         $this->parameters[$placeholder] = $value;
@@ -561,7 +558,11 @@ class MySQL implements QueryBuilderInterface
 
     public function havingIn(string $column, array $values) : self
     {
-        $clause = str_contains($this->query, 'HAVING') ? ' AND' : ' HAVING';
+        if (!$this->isSubBuilder) {
+            $clause = !str_contains($this->query, 'HAVING') ? ' HAVING' : ' AND';
+        } else {
+            $clause = trim($this->query) === '' ? '' : ' AND';
+        }
         $placeholders = [];
 
         foreach ($values as $key => $value) {
@@ -590,7 +591,11 @@ class MySQL implements QueryBuilderInterface
 
     public function havingNotIn(string $column, array $values) : self
     {
-        $clause = str_contains($this->query, 'HAVING') ? ' AND' : ' HAVING';
+        if (!$this->isSubBuilder) {
+            $clause = !str_contains($this->query, 'HAVING') ? ' HAVING' : ' AND';
+        } else {
+            $clause = trim($this->query) === '' ? '' : ' AND';
+        }
         $placeholders = [];
 
         foreach ($values as $key => $value) {
@@ -619,7 +624,11 @@ class MySQL implements QueryBuilderInterface
 
     public function havingBetween(string $column, string $value1, string $value2) : self
     {
-        $clause = str_contains($this->query, 'HAVING') ? ' AND' : ' HAVING';
+        if (!$this->isSubBuilder) {
+            $clause = !str_contains($this->query, 'HAVING') ? ' HAVING' : ' AND';
+        } else {
+            $clause = trim($this->query) === '' ? '' : ' AND';
+        }
         $placeholder1 = ":{$column}_between_1";
         $placeholder2 = ":{$column}_between_2";
 
@@ -632,7 +641,11 @@ class MySQL implements QueryBuilderInterface
 
     public function havingNotBetween(string $column, string $value1, string $value2) : self
     {
-        $clause = str_contains($this->query, 'HAVING') ? ' AND' : ' HAVING';
+        if (!$this->isSubBuilder) {
+            $clause = !str_contains($this->query, 'HAVING') ? ' HAVING' : ' AND';
+        } else {
+            $clause = trim($this->query) === '' ? '' : ' AND';
+        }
         $placeholder1 = ":{$column}_not_between_1";
         $placeholder2 = ":{$column}_not_between_2";
 
@@ -669,7 +682,11 @@ class MySQL implements QueryBuilderInterface
 
     public function havingLike(string $column, string $value) : self
     {
-        $clause = str_contains($this->query, 'HAVING') ? ' AND' : ' HAVING';
+        if (!$this->isSubBuilder) {
+            $clause = !str_contains($this->query, 'HAVING') ? ' HAVING' : ' AND';
+        } else {
+            $clause = trim($this->query) === '' ? '' : ' AND';
+        }
         $placeholder = ":{$column}_like";
         $this->query .= "$clause $column LIKE $placeholder";
         $this->parameters[$placeholder] = "%$value%";
@@ -688,7 +705,11 @@ class MySQL implements QueryBuilderInterface
 
     public function havingNotLike(string $column, string $value) : self
     {
-        $clause = str_contains($this->query, 'HAVING') ? ' AND' : ' HAVING';
+        if (!$this->isSubBuilder) {
+            $clause = !str_contains($this->query, 'HAVING') ? ' HAVING' : ' AND';
+        } else {
+            $clause = trim($this->query) === '' ? '' : ' AND';
+        }
         $placeholder = ":{$column}_not_like";
         $this->query .= "$clause $column NOT LIKE $placeholder";
         $this->parameters[$placeholder] = "%$value%";
@@ -704,9 +725,16 @@ class MySQL implements QueryBuilderInterface
 
         return $this;
     }
-    public function take(int $limit) : self
+    public function take(int $limit): self
     {
-        $this->query .= " LIMIT $limit";
+        if (str_contains($this->query, 'OFFSET')) {
+
+            $offsetPos = strpos($this->query, 'OFFSET');
+
+            $this->query = substr_replace($this->query, "LIMIT $limit ", $offsetPos, 0);
+        } else {
+            $this->query .= " LIMIT $limit";
+        }
 
         return $this;
     }
@@ -787,6 +815,100 @@ class MySQL implements QueryBuilderInterface
         $this->query = "DELETE FROM $this->table";
         return Application::$app->db->exec($this->query);
     }
+    public function get() : array
+    {
+        $statement = Application::$app->db->prepare($this->query);
+        $statement->execute($this->parameters);
+        $rows = $statement->fetchAll();
+        if($this->instance === null) {
+            return $rows;
+        }
+        if(count($rows) === 0) {
+            return [];
+        }
+        $instances = [];
+        foreach ($rows as $row) {
+            $instance = new $this->instance();
+            $instance->exists = true;
+            $primaryKey = $instance->primaryKey ?? 'id';
+            $instance->{$primaryKey} = $row->{$primaryKey} ?? null;
+            foreach ($row as $key => $value) {
+                $instance->{$key} = $value;
+            }
+
+            if (!empty($this->relations)) {
+                foreach ($this->relations as $relation) {
+                    if(str_contains($relation, '.')) {
+                        $relations = explode('.', $relation);
+                        $relationInstance = $instance->{$relations[0]};
+                        if($relationInstance){
+                            if(is_array($relationInstance)) {
+                                foreach ($relationInstance as $relInst) {
+                                    $relInst->{$relations[1]} = $relInst->{$relations[1]}()->getResults();
+                                }
+                            }
+                            else{
+                                $relationInstance->{$relations[1]} = $relationInstance->{$relations[1]}()->getResults();
+                            }
+                        }
+                    }
+                    else{
+                        if (method_exists($instance, $relation)) {
+                            $instance->{$relation} = $instance->{$relation}()->getResults();
+                        }
+                    }
+                }
+            }
+            $instance = $this->hideHiddenFields($instance);
+            $instances[] = $instance;
+        }
+
+        return $instances;
+    }
+    public function first() : mixed
+    {
+        $statement = Application::$app->db->prepare($this->query);
+        $statement->execute($this->parameters);
+        $row = $statement->fetch();
+        if($this->instance === null) {
+            return $row;
+        }
+        if(!$row) {
+            return null;
+        }
+        $instance = new $this->instance();
+        $instance->exists = true;
+        $primaryKey = $instance->primaryKey ?? 'id';
+        $instance->{$primaryKey} = $row->{$primaryKey} ?? null;
+        foreach ($row as $key => $value) {
+            $instance->{$key} = $value;
+        }
+        if (!empty($this->relations)) {
+            foreach ($this->relations as $relation) {
+                if(str_contains($relation, '.')) {
+                    $relations = explode('.', $relation);
+                    $relationInstance = $instance->{$relations[0]};
+                    if($relationInstance){
+                        if(is_array($relationInstance)) {
+                            foreach ($relationInstance as $relInst) {
+                                $relInst->{$relations[1]} = $relInst->{$relations[1]}()->getResults();
+                            }
+                        }
+                        else{
+                            $relationInstance->{$relations[1]} = $relationInstance->{$relations[1]}()->getResults();
+                        }
+                    }
+                }
+                else{
+                    if (method_exists($instance, $relation)) {
+                        $instance->{$relation} = $instance->{$relation}()->getResults();
+                    }
+                }
+            }
+        }
+        $instance = $this->hideHiddenFields($instance);
+        return $instance;
+    }
     public function insert(array $data) : bool
     {
         $columns = implode(', ', array_keys($data));
@@ -851,6 +973,17 @@ class MySQL implements QueryBuilderInterface
     public function getParameters() : array
     {
         return $this->parameters;
+    }
+    private function hideHiddenFields($instance): mixed {
+        $attributes = $instance->attributes;
+
+        foreach ($instance->hidden as $hiddenField) {
+            unset($attributes[$hiddenField]);
+        }
+
+        $instance->attributes = $attributes;
+
+        return $instance;
     }
 
 }

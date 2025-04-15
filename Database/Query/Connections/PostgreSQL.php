@@ -19,12 +19,13 @@ class PostgreSQL implements QueryBuilderInterface
 
     public function __construct(string $table,bool $isSubBuilder = false)
     {
+        $this->table = $table;
         $this->isSubBuilder = $isSubBuilder;
 
         if (!$this->isSubBuilder) {
             $this->query = 'SELECT * FROM ' . $table;
         } else {
-            $this->query = ''; // ← obavezno, da ne bude uninitialized!
+            $this->query = '';
         }
     }
     public function setInstance($instance): void
@@ -46,11 +47,11 @@ class PostgreSQL implements QueryBuilderInterface
     }
     public function join(string $table, string|\Closure $first, string $operator, string $second) : self
     {
-        $this->query .= " JOIN $table ON ";
         if($first instanceof \Closure) {
+            $this->query .= " JOIN $table ON ";
             $this->query = $first(new Join($this->query));
         } else {
-            $this->query .= "$first $operator $second";
+            $this->query .= " JOIN $table ON $first $operator $second";
         }
 
         return $this;
@@ -75,7 +76,11 @@ class PostgreSQL implements QueryBuilderInterface
 
         $callback($subBuilder);
 
-        $subQuery = preg_replace('/^ WHERE /', '', $subBuilder->query);
+        $subQuery = $subBuilder->query;
+
+        $subQuery = preg_replace('/^SELECT \* FROM \w+/', '', $subQuery);
+
+        $subQuery = preg_replace('/^\s*WHERE\s*/', '', $subQuery);
 
         $this->query .= $clause . $subQuery . ')';
 
@@ -91,7 +96,11 @@ class PostgreSQL implements QueryBuilderInterface
 
         $callback($subBuilder);
 
-        $subQuery = preg_replace('/^ WHERE /', '', $subBuilder->query);
+        $subQuery = $subBuilder->query;
+
+        $subQuery = preg_replace('/^SELECT \* FROM \w+/', '', $subQuery);
+
+        $subQuery = preg_replace('/^\s*WHERE\s*/', '', $subQuery);
 
         $this->query .= $clause . $subQuery . ')';
 
@@ -101,15 +110,14 @@ class PostgreSQL implements QueryBuilderInterface
     }
     public function where(string $column, string $operator, string|null $value) : self
     {
-        $clause = ' AND';
-
         if (!$this->isSubBuilder) {
             $clause = !str_contains($this->query, 'WHERE') ? ' WHERE' : ' AND';
         } else {
             $clause = trim($this->query) === '' ? '' : ' AND';
         }
 
-        $this->query .= "$clause $column $operator :$column";
+        $this->query .= "$clause \"$column\" $operator :$column";
+
         $this->parameters[":$column"] = $value;
 
         return $this;
@@ -124,11 +132,13 @@ class PostgreSQL implements QueryBuilderInterface
     }
     public function whereNot(string $column, string $operator, string|null $value) : self
     {
-        if(!str_contains($this->query, 'WHERE')) {
-            $this->query .= " WHERE \"$column\" NOT $operator :$column";
+        if (!$this->isSubBuilder) {
+            $clause = !str_contains($this->query, 'WHERE') ? ' WHERE' : ' AND';
         } else {
-            $this->query .= " AND \"$column\" NOT $operator :$column";
+            $clause = trim($this->query) === '' ? '' : ' AND';
         }
+
+        $this->query .= "$clause \"$column\" NOT $operator :$column";
 
         $this->parameters[":$column"] = $value;
 
@@ -144,7 +154,11 @@ class PostgreSQL implements QueryBuilderInterface
     }
     public function whereIn(string $column, array $values): self
     {
-        $clause = str_contains($this->query, 'WHERE') ? ' AND' : ' WHERE';
+        if (!$this->isSubBuilder) {
+            $clause = !str_contains($this->query, 'WHERE') ? ' WHERE' : ' AND';
+        } else {
+            $clause = trim($this->query) === '' ? '' : ' AND';
+        }
         $placeholders = [];
 
         foreach ($values as $key => $value) {
@@ -172,7 +186,11 @@ class PostgreSQL implements QueryBuilderInterface
     }
     public function whereNotIn(string $column, array $values): self
     {
-        $clause = str_contains($this->query, 'WHERE') ? ' AND' : ' WHERE';
+        if (!$this->isSubBuilder) {
+            $clause = !str_contains($this->query, 'WHERE') ? ' WHERE' : ' AND';
+        } else {
+            $clause = trim($this->query) === '' ? '' : ' AND';
+        }
         $placeholders = [];
 
         foreach ($values as $key => $value) {
@@ -200,7 +218,11 @@ class PostgreSQL implements QueryBuilderInterface
     }
     public function whereAny(array $columns, string $operator, string|null $value): self
     {
-        $clause = str_contains($this->query, 'WHERE') ? ' AND (' : ' WHERE (';
+        if (!$this->isSubBuilder) {
+            $clause = !str_contains($this->query, 'WHERE') ? ' WHERE (' : ' AND (';
+        } else {
+            $clause = trim($this->query) === '' ? '' : ' AND (';
+        }
         $this->query .= $clause;
 
         $placeholders = [];
@@ -216,8 +238,11 @@ class PostgreSQL implements QueryBuilderInterface
 
     public function whereAll(array $columns, string $operator, string|null $value) : self
     {
-
-        $clause = str_contains($this->query, 'WHERE') ? ' AND (' : ' WHERE (';
+        if (!$this->isSubBuilder) {
+            $clause = !str_contains($this->query, 'WHERE') ? ' WHERE (' : ' AND (';
+        } else {
+            $clause = trim($this->query) === '' ? '' : ' AND (';
+        }
         $this->query .= $clause;
 
         $placeholders = [];
@@ -232,17 +257,30 @@ class PostgreSQL implements QueryBuilderInterface
     }
     public function whereNone(array $columns, string $operator, string|null $value) : self
     {
-        $this->query .= str_contains($this->query, 'WHERE') ? ' NOT' : ' WHERE NOT';
-        foreach ($columns as $column) {
-            $this->query .= "\"$column\" $operator '$value' OR ";
+        if (!$this->isSubBuilder) {
+            $clause = !str_contains($this->query, 'WHERE') ? ' WHERE NOT (' : ' AND NOT (';
+        } else {
+            $clause = trim($this->query) === '' ? '' : ' AND NOT (';
         }
-        $this->query = rtrim($this->query, ' OR ');
+        $this->query .= $clause;
 
+        $conditions = [];
+        foreach ($columns as $key => $column) {
+            $placeholder = ":{$column}_none_{$key}";
+            $conditions[] = "\"$column\" $operator $placeholder";
+            $this->parameters[$placeholder] = $value;
+        }
+
+        $this->query .= implode(' OR ', $conditions) . ')';
         return $this;
     }
     public function whereLike(string $column, string $value): self
     {
-        $clause = str_contains($this->query, 'WHERE') ? ' AND' : ' WHERE';
+        if (!$this->isSubBuilder) {
+            $clause = !str_contains($this->query, 'WHERE') ? ' WHERE' : ' AND';
+        } else {
+            $clause = trim($this->query) === '' ? '' : ' AND';
+        }
         $this->query .= "$clause \"$column\" ILIKE :$column";
         $this->parameters[":$column"] = "%$value%";
         return $this;
@@ -257,7 +295,11 @@ class PostgreSQL implements QueryBuilderInterface
 
     public function whereNotLike(string $column, string $value): self
     {
-        $clause = str_contains($this->query, 'WHERE') ? ' AND' : ' WHERE';
+        if (!$this->isSubBuilder) {
+            $clause = !str_contains($this->query, 'WHERE') ? ' WHERE' : ' AND';
+        } else {
+            $clause = trim($this->query) === '' ? '' : ' AND';
+        }
         $placeholder = ":{$column}_not_like";
         $this->query .= "$clause \"$column\" NOT ILIKE $placeholder";
         $this->parameters[$placeholder] = "%$value%";
@@ -276,7 +318,11 @@ class PostgreSQL implements QueryBuilderInterface
 
     public function whereBetween(string $column, string $value1, string $value2): self
     {
-        $clause = str_contains($this->query, 'WHERE') ? ' AND' : ' WHERE';
+        if (!$this->isSubBuilder) {
+            $clause = !str_contains($this->query, 'WHERE') ? ' WHERE' : ' AND';
+        } else {
+            $clause = trim($this->query) === '' ? '' : ' AND';
+        }
         $placeholder1 = ":{$column}_between_1";
         $placeholder2 = ":{$column}_between_2";
 
@@ -301,7 +347,11 @@ class PostgreSQL implements QueryBuilderInterface
 
     public function whereNotBetween(string $column, string $value1, string $value2): self
     {
-        $clause = str_contains($this->query, 'WHERE') ? ' AND' : ' WHERE';
+        if (!$this->isSubBuilder) {
+            $clause = !str_contains($this->query, 'WHERE') ? ' WHERE' : ' AND';
+        } else {
+            $clause = trim($this->query) === '' ? '' : ' AND';
+        }
         $placeholder1 = ":{$column}_not_between_1";
         $placeholder2 = ":{$column}_not_between_2";
 
@@ -326,7 +376,11 @@ class PostgreSQL implements QueryBuilderInterface
 
     public function whereBetweenColumns(string $column, array $columns): self
     {
-        $clause = str_contains($this->query, 'WHERE') ? ' AND' : ' WHERE';
+        if (!$this->isSubBuilder) {
+            $clause = !str_contains($this->query, 'WHERE') ? ' WHERE' : ' AND';
+        } else {
+            $clause = trim($this->query) === '' ? '' : ' AND';
+        }
         $this->query .= "$clause \"$column\" BETWEEN \"$columns[0]\" AND \"$columns[1]\"";
 
         return $this;
@@ -341,7 +395,6 @@ class PostgreSQL implements QueryBuilderInterface
 
     public function whereNull(string $column): self
     {
-
         if (!$this->isSubBuilder) {
             $clause = !str_contains($this->query, 'WHERE') ? ' WHERE' : ' AND';
         } else {
@@ -362,7 +415,6 @@ class PostgreSQL implements QueryBuilderInterface
 
     public function whereNotNull(string $column): self
     {
-
         if (!$this->isSubBuilder) {
             $clause = !str_contains($this->query, 'WHERE') ? ' WHERE' : ' AND';
         } else {
@@ -383,7 +435,11 @@ class PostgreSQL implements QueryBuilderInterface
 
     public function whereColumn(string $firstColumn, string $operator, string $secondColumn): self
     {
-        $clause = str_contains($this->query, 'WHERE') ? ' AND' : ' WHERE';
+        if (!$this->isSubBuilder) {
+            $clause = !str_contains($this->query, 'WHERE') ? ' WHERE' : ' AND';
+        } else {
+            $clause = trim($this->query) === '' ? '' : ' AND';
+        }
         $this->query .= "$clause \"$firstColumn\" $operator \"$secondColumn\"";
 
         return $this;
@@ -397,12 +453,346 @@ class PostgreSQL implements QueryBuilderInterface
     }
     public function whereExists(QueryBuilderInterface $builder): self
     {
-        $clause = str_contains($this->query, 'WHERE') ? ' AND' : ' WHERE';
+        if (!$this->isSubBuilder) {
+            $clause = !str_contains($this->query, 'WHERE') ? ' WHERE' : ' AND';
+        } else {
+            $clause = trim($this->query) === '' ? '' : ' AND';
+        }
         $this->query .= "$clause EXISTS (" . $builder->getQuery() . ")";
         $this->parameters = array_merge($this->parameters, $builder->getParameters());
         return $this;
     }
+    public function find($instance, $id) : Model|null|\stdClass
+    {
+        $this->instance = $instance;
+        $this->query = "SELECT * FROM $this->table WHERE $instance->primaryKey = :{$instance->primaryKey}";
+        $this->parameters = [":{$instance->primaryKey}" => $id];
+        return $this->first();
+    }
+    public function groupBy(string ...$columns) : self
+    {
+        $columns = implode('", ', $columns);
+        $this->query .= " GROUP BY \"$columns\"";
 
+        return $this;
+    }
+    public function orderBy(string $column, string $direction = 'ASC') : self
+    {
+        $direction = strtoupper($direction);
+        if(!str_contains($this->query, 'ORDER BY')) {
+            $this->query .= " ORDER BY \"$column\" $direction";
+        } else {
+            $this->query .= ", \"$column\" $direction";
+        }
+
+        return $this;
+    }
+    public function havingGroup(callable $callback): self
+    {
+        $clause = str_contains($this->query, 'HAVING') ? ' AND (' : ' HAVING (';
+
+        $subBuilder = new static($this->table, true);
+
+        $callback($subBuilder);
+
+        $subQuery = $subBuilder->query;
+
+        $subQuery = preg_replace('/^SELECT \* FROM \w+/', '', $subQuery);
+
+        $subQuery = preg_replace('/^\s*HAVING\s*/', '', $subQuery);
+
+        $this->query .= $clause . $subQuery . ')';
+
+        $this->parameters = array_merge($this->parameters, $subBuilder->parameters);
+
+        return $this;
+    }
+    public function orHavingGroup(callable $callback): self
+    {
+        $clause = str_contains($this->query, 'HAVING') ? ' OR (' : ' HAVING (';
+
+        $subBuilder = new static($this->table, true);
+
+        $callback($subBuilder);
+
+        $subQuery = $subBuilder->query;
+
+        $subQuery = preg_replace('/^SELECT \* FROM \w+/', '', $subQuery);
+
+        $subQuery = preg_replace('/^\s*HAVING\s*/', '', $subQuery);
+
+        $this->query .= $clause . $subQuery . ')';
+
+        $this->parameters = array_merge($this->parameters, $subBuilder->parameters);
+
+        return $this;
+    }
+    public function having(string $column, string $operator, string $value): self
+    {
+        if (!$this->isSubBuilder) {
+            $clause = !str_contains($this->query, 'HAVING') ? ' HAVING' : ' AND';
+        } else {
+            $clause = trim($this->query) === '' ? '' : ' AND';
+        }
+        $placeholder = ":{$column}_having";
+        $this->query .= "$clause \"$column\" $operator $placeholder";
+        $this->parameters[$placeholder] = $value;
+
+        return $this;
+    }
+
+    public function havingIn(string $column, array $values): self
+    {
+        if (!$this->isSubBuilder) {
+            $clause = !str_contains($this->query, 'HAVING') ? ' HAVING' : ' AND';
+        } else {
+            $clause = trim($this->query) === '' ? '' : ' AND';
+        }
+        $placeholders = [];
+        foreach ($values as $key => $value) {
+            $placeholder = ":{$column}_having_in_$key";
+            $placeholders[] = $placeholder;
+            $this->parameters[$placeholder] = $value;
+        }
+
+        $this->query .= "$clause \"$column\" IN (" . implode(', ', $placeholders) . ")";
+
+        return $this;
+    }
+
+    public function orHavingIn(string $column, array $values): self
+    {
+        $placeholders = [];
+        foreach ($values as $key => $value) {
+            $placeholder = ":{$column}_or_having_in_$key";
+            $placeholders[] = $placeholder;
+            $this->parameters[$placeholder] = $value;
+        }
+        $this->query .= " OR \"$column\" IN (" . implode(', ', $placeholders) . ")";
+
+        return $this;
+    }
+
+    public function havingNotIn(string $column, array $values): self
+    {
+        if (!$this->isSubBuilder) {
+            $clause = !str_contains($this->query, 'HAVING') ? ' HAVING' : ' AND';
+        } else {
+            $clause = trim($this->query) === '' ? '' : ' AND';
+        }
+        $placeholders = [];
+        foreach ($values as $key => $value) {
+            $placeholder = ":{$column}_having_not_in_$key";
+            $placeholders[] = $placeholder;
+            $this->parameters[$placeholder] = $value;
+        }
+        $this->query .= "$clause \"$column\" NOT IN (" . implode(', ', $placeholders) . ")";
+
+        return $this;
+    }
+
+    public function orHavingNotIn(string $column, array $values): self
+    {
+        $placeholders = [];
+        foreach ($values as $key => $value) {
+            $placeholder = ":{$column}_or_having_not_in_$key";
+            $placeholders[] = $placeholder;
+            $this->parameters[$placeholder] = $value;
+        }
+        $this->query .= " OR \"$column\" NOT IN (" . implode(', ', $placeholders) . ")";
+
+        return $this;
+    }
+
+    public function havingBetween(string $column, string $value1, string $value2): self
+    {
+        if (!$this->isSubBuilder) {
+            $clause = !str_contains($this->query, 'HAVING') ? ' HAVING' : ' AND';
+        } else {
+            $clause = trim($this->query) === '' ? '' : ' AND';
+        }
+        $placeholder1 = ":{$column}_having_between_1";
+        $placeholder2 = ":{$column}_having_between_2";
+        $this->query .= "$clause \"$column\" BETWEEN $placeholder1 AND $placeholder2";
+        $this->parameters[$placeholder1] = $value1;
+        $this->parameters[$placeholder2] = $value2;
+
+        return $this;
+    }
+
+    public function havingNotBetween(string $column, string $value1, string $value2): self
+    {
+        if (!$this->isSubBuilder) {
+            $clause = !str_contains($this->query, 'HAVING') ? ' HAVING' : ' AND';
+        } else {
+            $clause = trim($this->query) === '' ? '' : ' AND';
+        }
+        $placeholder1 = ":{$column}_having_not_between_1";
+        $placeholder2 = ":{$column}_having_not_between_2";
+        $this->query .= "$clause \"$column\" NOT BETWEEN $placeholder1 AND $placeholder2";
+        $this->parameters[$placeholder1] = $value1;
+        $this->parameters[$placeholder2] = $value2;
+
+        return $this;
+    }
+
+    public function orHavingBetween(string $column, string $value1, string $value2): self
+    {
+        $placeholder1 = ":{$column}_or_having_between_1";
+        $placeholder2 = ":{$column}_or_having_between_2";
+        $this->query .= " OR \"$column\" BETWEEN $placeholder1 AND $placeholder2";
+        $this->parameters[$placeholder1] = $value1;
+        $this->parameters[$placeholder2] = $value2;
+
+        return $this;
+    }
+
+    public function orHavingNotBetween(string $column, string $value1, string $value2): self
+    {
+        $placeholder1 = ":{$column}_or_having_not_between_1";
+        $placeholder2 = ":{$column}_or_having_not_between_2";
+        $this->query .= " OR \"$column\" NOT BETWEEN $placeholder1 AND $placeholder2";
+        $this->parameters[$placeholder1] = $value1;
+        $this->parameters[$placeholder2] = $value2;
+
+        return $this;
+    }
+
+    public function havingLike(string $column, string $value): self
+    {
+        if (!$this->isSubBuilder) {
+            $clause = !str_contains($this->query, 'HAVING') ? ' HAVING' : ' AND';
+        } else {
+            $clause = trim($this->query) === '' ? '' : ' AND';
+        }
+        $placeholder = ":{$column}_having_like";
+        $this->query .= "$clause \"$column\" ILIKE $placeholder";
+        $this->parameters[$placeholder] = "%$value%";
+
+        return $this;
+    }
+
+    public function orHavingLike(string $column, string $value): self
+    {
+        $placeholder = ":{$column}_or_having_like";
+        $this->query .= " OR \"$column\" ILIKE $placeholder";
+        $this->parameters[$placeholder] = "%$value%";
+
+        return $this;
+    }
+
+    public function havingNotLike(string $column, string $value): self
+    {
+        if (!$this->isSubBuilder) {
+            $clause = !str_contains($this->query, 'HAVING') ? ' HAVING' : ' AND';
+        } else {
+            $clause = trim($this->query) === '' ? '' : ' AND';
+        }
+        $placeholder = ":{$column}_having_not_like";
+        $this->query .= "$clause \"$column\" NOT ILIKE $placeholder";
+        $this->parameters[$placeholder] = "%$value%";
+
+        return $this;
+    }
+
+    public function orHavingNotLike(string $column, string $value): self
+    {
+        $placeholder = ":{$column}_or_having_not_like";
+        $this->query .= " OR \"$column\" NOT ILIKE $placeholder";
+        $this->parameters[$placeholder] = "%$value%";
+
+        return $this;
+    }
+    public function take(int $limit): self
+    {
+        if (str_contains($this->query, 'OFFSET')) {
+
+            $offsetPos = strpos($this->query, 'OFFSET');
+
+            $this->query = substr_replace($this->query, "LIMIT $limit ", $offsetPos, 0);
+        } else {
+            $this->query .= " LIMIT $limit";
+        }
+
+        return $this;
+    }
+    public function skip(int $offset) : self
+    {
+        $this->query .= " OFFSET $offset";
+
+        return $this;
+    }
+    public function firstOrFail()
+    {
+        $instance = $this->first();
+        if(!$instance) {
+            throw new ModelNotFoundException();
+        }
+        return $instance;
+    }
+    public function increment(string $column, int $amount = 1) : bool
+    {
+        $this->query = "UPDATE $this->table SET $column = $column + $amount";
+        return Application::$app->db->exec($this->query);
+    }
+    public function decrement(string $column, int $amount = 1) : bool
+    {
+        $this->query = "UPDATE $this->table SET $column = $column - $amount";
+        return Application::$app->db->exec($this->query);
+    }
+    public function count(string $column = '*') : int
+    {
+        $this->query = str_replace('*', "COUNT($column)", $this->query);
+        $statement = Application::$app->db->prepare($this->query);
+        $statement->execute($this->parameters);
+        return $statement->fetchColumn();
+    }
+    public function max(string $column) : int
+    {
+        $this->query = str_replace('*', "MAX($column)", $this->query);
+        $statement = Application::$app->db->prepare($this->query);
+        $statement->execute($this->parameters);
+        return $statement->fetchColumn();
+    }
+    public function min(string $column) : int
+    {
+        $this->query = str_replace('*', "MIN($column)", $this->query);
+        $statement = Application::$app->db->prepare($this->query);
+        $statement->execute($this->parameters);
+        return $statement->fetchColumn();
+    }
+    public function sum(string $column) : int
+    {
+        $this->query = str_replace('*', "SUM($column)", $this->query);
+        $statement = Application::$app->db->prepare($this->query);
+        $statement->execute($this->parameters);
+        return $statement->fetchColumn();
+    }
+    public function avg(string $column) : int
+    {
+        $this->query = str_replace('*', "AVG($column)", $this->query);
+        $statement = Application::$app->db->prepare($this->query);
+        $statement->execute($this->parameters);
+        return $statement->fetchColumn();
+    }
+    public function value(string $column) : mixed
+    {
+        $this->query = str_replace('*', $column, $this->query);
+        $statement = Application::$app->db->prepare($this->query);
+        $statement->execute($this->parameters);
+        return $statement->fetchColumn();
+    }
+    public function exists() : bool
+    {
+        $statement = Application::$app->db->prepare($this->query);
+        $statement->execute($this->parameters);
+        return $statement->rowCount() > 0;
+    }
+    public function empty() : bool
+    {
+        $this->query = "DELETE FROM $this->table";
+        return Application::$app->db->exec($this->query);
+    }
     public function get() : array
     {
         $statement = Application::$app->db->prepare($this->query);
@@ -491,262 +881,6 @@ class PostgreSQL implements QueryBuilderInterface
         }
         $instance = $this->hideHiddenFields($instance);
         return $instance;
-    }
-    public function find($instance, $id) : Model|null|\stdClass
-    {
-        $this->instance = $instance;
-        $this->query = "SELECT * FROM $this->table WHERE $instance->primaryKey = :{$instance->primaryKey}";
-        $this->parameters = [":{$instance->primaryKey}" => $id];
-        return $this->first();
-    }
-    public function groupBy(string ...$columns) : self
-    {
-        $columns = implode('", ', $columns);
-        $this->query .= " GROUP BY \"$columns\"";
-
-        return $this;
-    }
-    public function orderBy(string $column, string $direction = 'ASC') : self
-    {
-        $direction = strtoupper($direction);
-        $this->query .= " ORDER BY $column $direction";
-        if(!str_contains($this->query, 'ORDER BY')) {
-            $this->query .= " ORDER BY \"$column\" $direction";
-        } else {
-            $this->query .= ", \"$column\" $direction";
-        }
-
-        return $this;
-    }
-    public function having(string $column, string $operator, string $value): self
-    {
-        $clause = str_contains($this->query, 'HAVING') ? ' AND' : ' HAVING';
-        $placeholder = ":{$column}_having";
-        $this->query .= "$clause \"$column\" $operator $placeholder";
-        $this->parameters[$placeholder] = $value;
-
-        return $this;
-    }
-
-    public function havingIn(string $column, array $values): self
-    {
-        $placeholders = [];
-        foreach ($values as $key => $value) {
-            $placeholder = ":{$column}_having_in_$key";
-            $placeholders[] = $placeholder;
-            $this->parameters[$placeholder] = $value;
-        }
-        $clause = str_contains($this->query, 'HAVING') ? ' AND' : ' HAVING';
-        $this->query .= "$clause \"$column\" IN (" . implode(', ', $placeholders) . ")";
-
-        return $this;
-    }
-
-    public function orHavingIn(string $column, array $values): self
-    {
-        $placeholders = [];
-        foreach ($values as $key => $value) {
-            $placeholder = ":{$column}_or_having_in_$key";
-            $placeholders[] = $placeholder;
-            $this->parameters[$placeholder] = $value;
-        }
-        $this->query .= " OR \"$column\" IN (" . implode(', ', $placeholders) . ")";
-
-        return $this;
-    }
-
-    public function havingNotIn(string $column, array $values): self
-    {
-        $placeholders = [];
-        foreach ($values as $key => $value) {
-            $placeholder = ":{$column}_having_not_in_$key";
-            $placeholders[] = $placeholder;
-            $this->parameters[$placeholder] = $value;
-        }
-        $clause = str_contains($this->query, 'HAVING') ? ' AND' : ' HAVING';
-        $this->query .= "$clause \"$column\" NOT IN (" . implode(', ', $placeholders) . ")";
-
-        return $this;
-    }
-
-    public function orHavingNotIn(string $column, array $values): self
-    {
-        $placeholders = [];
-        foreach ($values as $key => $value) {
-            $placeholder = ":{$column}_or_having_not_in_$key";
-            $placeholders[] = $placeholder;
-            $this->parameters[$placeholder] = $value;
-        }
-        $this->query .= " OR \"$column\" NOT IN (" . implode(', ', $placeholders) . ")";
-
-        return $this;
-    }
-
-    public function havingBetween(string $column, string $value1, string $value2): self
-    {
-        $clause = str_contains($this->query, 'HAVING') ? ' AND' : ' HAVING';
-        $placeholder1 = ":{$column}_having_between_1";
-        $placeholder2 = ":{$column}_having_between_2";
-        $this->query .= "$clause \"$column\" BETWEEN $placeholder1 AND $placeholder2";
-        $this->parameters[$placeholder1] = $value1;
-        $this->parameters[$placeholder2] = $value2;
-
-        return $this;
-    }
-
-    public function havingNotBetween(string $column, string $value1, string $value2): self
-    {
-        $clause = str_contains($this->query, 'HAVING') ? ' AND' : ' HAVING';
-        $placeholder1 = ":{$column}_having_not_between_1";
-        $placeholder2 = ":{$column}_having_not_between_2";
-        $this->query .= "$clause \"$column\" NOT BETWEEN $placeholder1 AND $placeholder2";
-        $this->parameters[$placeholder1] = $value1;
-        $this->parameters[$placeholder2] = $value2;
-
-        return $this;
-    }
-
-    public function orHavingBetween(string $column, string $value1, string $value2): self
-    {
-        $placeholder1 = ":{$column}_or_having_between_1";
-        $placeholder2 = ":{$column}_or_having_between_2";
-        $this->query .= " OR \"$column\" BETWEEN $placeholder1 AND $placeholder2";
-        $this->parameters[$placeholder1] = $value1;
-        $this->parameters[$placeholder2] = $value2;
-
-        return $this;
-    }
-
-    public function orHavingNotBetween(string $column, string $value1, string $value2): self
-    {
-        $placeholder1 = ":{$column}_or_having_not_between_1";
-        $placeholder2 = ":{$column}_or_having_not_between_2";
-        $this->query .= " OR \"$column\" NOT BETWEEN $placeholder1 AND $placeholder2";
-        $this->parameters[$placeholder1] = $value1;
-        $this->parameters[$placeholder2] = $value2;
-
-        return $this;
-    }
-
-    public function havingLike(string $column, string $value): self
-    {
-        $clause = str_contains($this->query, 'HAVING') ? ' AND' : ' HAVING';
-        $placeholder = ":{$column}_having_like";
-        $this->query .= "$clause \"$column\" ILIKE $placeholder";
-        $this->parameters[$placeholder] = "%$value%";
-
-        return $this;
-    }
-
-    public function orHavingLike(string $column, string $value): self
-    {
-        $placeholder = ":{$column}_or_having_like";
-        $this->query .= " OR \"$column\" ILIKE $placeholder";
-        $this->parameters[$placeholder] = "%$value%";
-
-        return $this;
-    }
-
-    public function havingNotLike(string $column, string $value): self
-    {
-        $clause = str_contains($this->query, 'HAVING') ? ' AND' : ' HAVING';
-        $placeholder = ":{$column}_having_not_like";
-        $this->query .= "$clause \"$column\" NOT ILIKE $placeholder";
-        $this->parameters[$placeholder] = "%$value%";
-
-        return $this;
-    }
-
-    public function orHavingNotLike(string $column, string $value): self
-    {
-        $placeholder = ":{$column}_or_having_not_like";
-        $this->query .= " OR \"$column\" NOT ILIKE $placeholder";
-        $this->parameters[$placeholder] = "%$value%";
-
-        return $this;
-    }
-    public function take(int $limit) : self
-    {
-        $this->query .= " LIMIT $limit";
-
-        return $this;
-    }
-    public function skip(int $offset) : self
-    {
-        $this->query .= " OFFSET $offset";
-
-        return $this;
-    }
-    public function firstOrFail()
-    {
-        $instance = $this->first();
-        if(!$instance) {
-            throw new ModelNotFoundException();
-        }
-        return $instance;
-    }
-    public function increment(string $column, int $amount = 1) : bool
-    {
-        $this->query = "UPDATE $this->table SET $column = $column + $amount";
-        return Application::$app->db->exec($this->query);
-    }
-    public function decrement(string $column, int $amount = 1) : bool
-    {
-        $this->query = "UPDATE $this->table SET $column = $column - $amount";
-        return Application::$app->db->exec($this->query);
-    }
-    public function count(string $column = '*') : int
-    {
-        $this->query = str_replace('*', "COUNT($column)", $this->query);
-        $statement = Application::$app->db->prepare($this->query);
-        $statement->execute($this->parameters);
-        return $statement->fetchColumn();
-    }
-    public function max(string $column) : int
-    {
-        $this->query = str_replace('*', "MAX($column)", $this->query);
-        $statement = Application::$app->db->prepare($this->query);
-        $statement->execute($this->parameters);
-        return $statement->fetchColumn();
-    }
-    public function min(string $column) : int
-    {
-        $this->query = str_replace('*', "MIN($column)", $this->query);
-        $statement = Application::$app->db->prepare($this->query);
-        $statement->execute($this->parameters);
-        return $statement->fetchColumn();
-    }
-    public function sum(string $column) : int
-    {
-        $this->query = str_replace('*', "SUM($column)", $this->query);
-        $statement = Application::$app->db->prepare($this->query);
-        $statement->execute($this->parameters);
-        return $statement->fetchColumn();
-    }
-    public function avg(string $column) : int
-    {
-        $this->query = str_replace('*', "AVG($column)", $this->query);
-        $statement = Application::$app->db->prepare($this->query);
-        $statement->execute($this->parameters);
-        return $statement->fetchColumn();
-    }
-    public function value(string $column) : mixed
-    {
-        $this->query = str_replace('*', $column, $this->query);
-        $statement = Application::$app->db->prepare($this->query);
-        $statement->execute($this->parameters);
-        return $statement->fetchColumn();
-    }
-    public function exists() : bool
-    {
-        $statement = Application::$app->db->prepare($this->query);
-        $statement->execute($this->parameters);
-        return $statement->rowCount() > 0;
-    }
-    public function empty() : bool
-    {
-        $this->query = "DELETE FROM $this->table";
-        return Application::$app->db->exec($this->query);
     }
     public function insert(array $data) : bool
     {
