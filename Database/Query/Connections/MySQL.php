@@ -817,9 +817,9 @@ class MySQL implements QueryBuilderInterface
     }
     public function get() : array
     {
-        var_dump($this->query);
-        exit;
         $statement = Application::$app->db->prepare($this->query);
+        var_dump($this->parameters);
+        exit;
         $statement->execute($this->parameters);
         $rows = $statement->fetchAll();
         if($this->instance === null) {
