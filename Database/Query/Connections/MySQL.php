@@ -119,6 +119,13 @@ class MySQL implements QueryBuilderInterface
 
         $this->query .= "$clause $column $operator :$column";
 
+        if (array_key_exists(":$column", $this->parameters)) {
+            $index = 1;
+            while (array_key_exists(":{$column}_$index", $this->parameters)) {
+                $index++;
+            }
+            $column = "{$column}_$index";
+        }
         $this->parameters[":$column"] = $value;
 
         return $this;
@@ -127,6 +134,13 @@ class MySQL implements QueryBuilderInterface
     {
         $this->query .= " OR $column $operator :$column";
 
+        if (array_key_exists(":$column", $this->parameters)) {
+            $index = 1;
+            while (array_key_exists(":{$column}_$index", $this->parameters)) {
+                $index++;
+            }
+            $column = "{$column}_$index";
+        }
         $this->parameters[":$column"] = $value;
 
         return $this;
@@ -818,8 +832,6 @@ class MySQL implements QueryBuilderInterface
     public function get() : array
     {
         $statement = Application::$app->db->prepare($this->query);
-        var_dump($this->parameters);
-        exit;
         $statement->execute($this->parameters);
         $rows = $statement->fetchAll();
         if($this->instance === null) {
