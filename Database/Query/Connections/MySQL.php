@@ -13,14 +13,15 @@ class MySQL implements QueryBuilderInterface
     private string $query;
     private string $table;
     private $instance = null;
-    private array $parameters = [];
+    private array $parameters;
     protected bool $isSubBuilder = false;
     private array $relations = [];
 
-    public function __construct(string $table,bool $isSubBuilder = false)
+    public function __construct(string $table,bool $isSubBuilder = false, array $parameters = [])
     {
         $this->table = $table;
         $this->isSubBuilder = $isSubBuilder;
+        $this->parameters = $parameters;
 
         if (!$this->isSubBuilder) {
             $this->query = 'SELECT * FROM ' . $table;
@@ -72,7 +73,7 @@ class MySQL implements QueryBuilderInterface
     {
         $clause = str_contains($this->query, 'WHERE') ? ' AND (' : ' WHERE (';
 
-        $subBuilder = new static($this->table, true);
+        $subBuilder = new static($this->table, true, $this->parameters);
 
         $callback($subBuilder);
 
@@ -92,7 +93,7 @@ class MySQL implements QueryBuilderInterface
     {
         $clause = str_contains($this->query, 'WHERE') ? ' OR (' : ' WHERE (';
 
-        $subBuilder = new static($this->table, true);
+        $subBuilder = new static($this->table, true,$this->parameters);
 
         $callback($subBuilder);
 
