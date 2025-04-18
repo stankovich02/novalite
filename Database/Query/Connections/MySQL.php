@@ -117,7 +117,7 @@ class MySQL implements QueryBuilderInterface
         } else {
             $clause = trim($this->query) === '' ? '' : ' AND';
         }
-
+        $unCheckedColumn = $column;
         if (array_key_exists(":$column", $this->parameters)) {
             $index = 1;
             while (array_key_exists(":{$column}_$index", $this->parameters)) {
@@ -126,7 +126,7 @@ class MySQL implements QueryBuilderInterface
             $column = "{$column}_$index";
         }
 
-        $this->query .= "$clause $column $operator :$column";
+        $this->query .= "$clause $unCheckedColumn $operator :$column";
 
 
         $this->parameters[":$column"] = $value;
@@ -135,6 +135,7 @@ class MySQL implements QueryBuilderInterface
     }
     public function orWhere(string $column, string $operator, string|null $value) : self
     {
+        $unCheckedColumn = $column;
         if (array_key_exists(":$column", $this->parameters)) {
             $index = 1;
             while (array_key_exists(":{$column}_$index", $this->parameters)) {
@@ -143,7 +144,7 @@ class MySQL implements QueryBuilderInterface
             $column = "{$column}_$index";
         }
 
-        $this->query .= " OR $column $operator :$column";
+        $this->query .= " OR $unCheckedColumn $operator :$column";
 
         $this->parameters[":$column"] = $value;
 
