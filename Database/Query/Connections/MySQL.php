@@ -118,8 +118,6 @@ class MySQL implements QueryBuilderInterface
             $clause = trim($this->query) === '' ? '' : ' AND';
         }
 
-        $this->query .= "$clause $column $operator :$column";
-
         if (array_key_exists(":$column", $this->parameters)) {
             $index = 1;
             while (array_key_exists(":{$column}_$index", $this->parameters)) {
@@ -127,14 +125,16 @@ class MySQL implements QueryBuilderInterface
             }
             $column = "{$column}_$index";
         }
+
+        $this->query .= "$clause $column $operator :$column";
+
+
         $this->parameters[":$column"] = $value;
 
         return $this;
     }
     public function orWhere(string $column, string $operator, string|null $value) : self
     {
-        $this->query .= " OR $column $operator :$column";
-
         if (array_key_exists(":$column", $this->parameters)) {
             $index = 1;
             while (array_key_exists(":{$column}_$index", $this->parameters)) {
@@ -142,6 +142,9 @@ class MySQL implements QueryBuilderInterface
             }
             $column = "{$column}_$index";
         }
+
+        $this->query .= " OR $column $operator :$column";
+
         $this->parameters[":$column"] = $value;
 
         return $this;
