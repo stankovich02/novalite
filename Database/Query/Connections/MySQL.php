@@ -996,8 +996,10 @@ class MySQL implements QueryBuilderInterface
     private function hideHiddenFields($instance): mixed {
         $attributes = $instance->attributes;
 
-        foreach ($instance->hidden as $hiddenField) {
-            unset($attributes[$hiddenField]);
+        if($instance->hidden){
+            foreach ($instance->hidden as $hiddenField) {
+                unset($attributes[$hiddenField]);
+            }
         }
 
         $instance->attributes = $attributes;
