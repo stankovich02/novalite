@@ -33,7 +33,6 @@ class ServeCommand implements CommandInterface
              exit(0);
         }
         $publicDir = Application::$ROOT_DIR . '/public';
-        echo $publicDir;
 
         if (!is_dir($publicDir)) {
             echo "Error: The public folder does not exist.\n";
@@ -42,10 +41,9 @@ class ServeCommand implements CommandInterface
 
         echo "Starting development server at http://$host:$port\n";
         echo "Press Ctrl+C to stop the server.\n";
-        echo $publicDir;
 
-        $command = "php -S $host:$port -t $publicDir";
-        echo $command;
+        $command = "php -S $host:$port -t \"$publicDir\"";
+
         passthru($command);
     }
 }
