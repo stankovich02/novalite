@@ -33,6 +33,7 @@ class ServeCommand implements CommandInterface
              exit(0);
         }
         $publicDir = Application::$ROOT_DIR . '/public';
+        echo $publicDir;
 
         if (!is_dir($publicDir)) {
             echo "Error: The public folder does not exist.\n";
