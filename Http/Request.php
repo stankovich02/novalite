@@ -64,7 +64,7 @@ class Request
                 break;
         }
     }
-    public function validate($data) : RedirectResponse|bool
+    public function validate($data) : bool
     {
         $this->data = $this->getAll();
         foreach ($data as $field => $fieldRules) {
@@ -158,7 +158,7 @@ class Request
            foreach ($this->data as $key => $value) {
                     $_SESSION['old'][$key] = $value;
             }
-           return redirect($_SERVER['HTTP_REFERER']);
+           return false;
         }
         else{
             $_SESSION['errors'] = new ValidationError([]);
@@ -168,9 +168,8 @@ class Request
                     unset($_SESSION['old'][$key]);
                 }
             }
+            return true;
         }
-        return true;
-
     }
     private function applyRule($value,$rule) : bool
     {
@@ -222,7 +221,7 @@ class Request
                 $min = str_replace('min:', '', $rule);
                 return $this->checkSizeOfValue($value, $min, 'min');
             case 'required':
-                return !empty($value) && $value !== null && $value !== '';
+                return !empty($value);
             case 'nullable':
                 return true;
             case 'numeric':
