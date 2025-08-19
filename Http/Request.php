@@ -159,6 +159,7 @@ class Request
                     $_SESSION['old'][$key] = $value;
             }
            var_dump($this->errors, $this->data);
+           exit;
         }
         else{
             $_SESSION['errors'] = new ValidationError([]);
@@ -169,6 +170,7 @@ class Request
                 }
             }
             var_dump($this->errors, $this->data);
+            exit;
         }
     }
     private function applyRule($value,$rule) : bool
