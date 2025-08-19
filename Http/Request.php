@@ -155,11 +155,14 @@ class Request
         }
         if(count($this->errors))
         {
+            Application::$app->session->markValidationFailed();
+
             Application::$app->session->setErrors(new ValidationError($this->errors));
             Application::$app->session->setOldData($this->data);
             return false;
         }
         else{
+
             Application::$app->session->clearFormData();
             return true;
         }
