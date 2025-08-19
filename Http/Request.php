@@ -64,7 +64,7 @@ class Request
                 break;
         }
     }
-    public function validate($data) : void
+    public function validate($data) : bool
     {
         $this->data = $this->getAll();
         foreach ($data as $field => $fieldRules) {
@@ -152,14 +152,13 @@ class Request
                 }
             }
         }
-        if(!empty($this->errors))
+        if(count($this->errors))
         {
-            $_SESSION['errors'] = new ValidationError($this->errors);
+           $_SESSION['errors'] = new ValidationError($this->errors);
            foreach ($this->data as $key => $value) {
                     $_SESSION['old'][$key] = $value;
             }
-           var_dump($this->errors, $this->data);
-           exit;
+           return false;
         }
         else{
             $_SESSION['errors'] = new ValidationError([]);
@@ -169,8 +168,7 @@ class Request
                     unset($_SESSION['old'][$key]);
                 }
             }
-            var_dump($this->errors, $this->data);
-            exit;
+            return true;
         }
     }
     private function applyRule($value,$rule) : bool
