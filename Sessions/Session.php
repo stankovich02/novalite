@@ -79,12 +79,78 @@ class Session
     public function flash(string $key, $value) : void
     {
         $_SESSION['flash_' . $key] = $value;
+        $_SESSION['flash_keys'][] = $key; // Dodajemo ključ u listu flash ključeva
     }
     public function getFlash(string $key, $default = null)
     {
         $value = $_SESSION['flash_' . $key] ?? $default;
         unset($_SESSION['flash_' . $key]);
         return $value;
+    }
+    public function setErrors($errors) : void
+    {
+        $_SESSION['errors'] = $errors;
+        $_SESSION['_errors_timestamp'] = time();
+    }
+
+    public function getErrors($default = null)
+    {
+        return $_SESSION['errors'] ?? $default;
+    }
+
+    public function setOldData(array $data) : void
+    {
+        $_SESSION['old'] = $data;
+        $_SESSION['_old_timestamp'] = time();
+    }
+
+    public function getOldData($key = null, $default = null)
+    {
+        if ($key === null) {
+            return $_SESSION['old'] ?? [];
+        }
+        return $_SESSION['old'][$key] ?? $default;
+    }
+
+    public function clearFormData() : void
+    {
+        unset($_SESSION['errors']);
+        unset($_SESSION['old']);
+        unset($_SESSION['_errors_timestamp']);
+        unset($_SESSION['_old_timestamp']);
+    }
+
+    // Proverava da li je stranica osvežena (refresh)
+    public function isPageRefresh() : bool
+    {
+        $currentUrl = $_SERVER['REQUEST_URI'] ?? '';
+        $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+
+        // Ako je GET zahtev i imamo greške/old podatke, to je verovatno refresh
+        if ($method === 'GET' && (isset($_SESSION['errors']) || isset($_SESSION['old']))) {
+            return true;
+        }
+
+        return false;
+    }
+
+    // Automatski briše flash podatke na početku zahteva
+    private function cleanupFlashData() : void
+    {
+        // Briši greške i old podatke ako je stranica osvežena
+        if ($this->isPageRefresh()) {
+            $this->clearFormData();
+        }
+
+        // Standardno brisanje flash podataka
+        foreach ($_SESSION as $key => $value) {
+            if (str_starts_with($key, 'flash_')) {
+                unset($_SESSION[$key]);
+            }
+        }
+
+        // Očisti listu flash ključeva
+        unset($_SESSION['flash_keys']);
     }
     public function flush() : void
     {
@@ -100,10 +166,10 @@ class Session
     }
     public function __destruct()
     {
-        foreach ($_SESSION as $key => $value) {
+       /* foreach ($_SESSION as $key => $value) {
             if (str_starts_with($key, 'flash_')) {
                 unset($_SESSION[$key]);
             }
-        }
+        }*/
     }
 }

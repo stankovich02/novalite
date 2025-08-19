@@ -2,6 +2,7 @@
 
 namespace NovaLite\Http;
 
+use NovaLite\Application;
 use NovaLite\Database\Database;
 use NovaLite\Validations\ValidationError;
 
@@ -154,20 +155,12 @@ class Request
         }
         if(count($this->errors))
         {
-           $_SESSION['errors'] = new ValidationError($this->errors);
-           foreach ($this->data as $key => $value) {
-                    $_SESSION['old'][$key] = $value;
-            }
-           return false;
+            Application::$app->session->setErrors(new ValidationError($this->errors));
+            Application::$app->session->setOldData($this->data);
+            return false;
         }
         else{
-            $_SESSION['errors'] = new ValidationError([]);
-            foreach ($this->data as $key => $value) {
-                if(isset($_SESSION['old'][$key]))
-                {
-                    unset($_SESSION['old'][$key]);
-                }
-            }
+            Application::$app->session->clearFormData();
             return true;
         }
     }
