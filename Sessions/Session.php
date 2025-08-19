@@ -7,6 +7,7 @@ class Session
     public function __construct()
     {
         session_start();
+        $this->cleanupFlashData();
     }
     public function get(string $key, $default = null)
     {
