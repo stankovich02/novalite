@@ -327,8 +327,10 @@ class Router{
                 } elseif (is_subclass_of($typeName, 'NovaLite\Validations\FormRequest')) {
                     $class = new $typeName();
                     $validated = $class->validateData();
-                    var_dump($validated);
-                    exit;
+                    if(!$validated){
+                        redirect()->back()->send();
+                        exit;
+                    }
                     $finalParams[] = $class;
                 }
             } else {
