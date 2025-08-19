@@ -222,7 +222,7 @@ class Request
                 $min = str_replace('min:', '', $rule);
                 return $this->checkSizeOfValue($value, $min, 'min');
             case 'required':
-                return !empty($value);
+                return !empty($value) && $value !== null && $value !== '';
             case 'nullable':
                 return true;
             case 'numeric':
