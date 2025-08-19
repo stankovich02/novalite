@@ -7,8 +7,8 @@ use NovaLite\Http\Request;
 abstract class FormRequest extends Request
 {
     abstract protected function rules() : array;
-    public function validateData() : bool
+    public function validateData() : void
     {
-        return $this->validate($this->rules());
+        $this->validate($this->rules());
     }
 }
