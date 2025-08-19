@@ -42,8 +42,8 @@ class ServeCommand implements CommandInterface
         echo "Starting development server at http://$host:$port\n";
         echo "Press Ctrl+C to stop the server.\n";
 
+        $command = "php -S $host:$port -t \"$publicDir\"";
 
-        $command = "php -S $host:$port -t $publicDir";
         passthru($command);
     }
 }
