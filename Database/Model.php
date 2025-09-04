@@ -233,9 +233,6 @@ abstract class Model
 
     public function __get($name) : mixed
     {
-/*        if ($name === 'pdo' || in_array($name, $this->hidden)) {
-            return null;
-        }*/
         if(array_key_exists($name, $this->attributes)) {
             return $this->attributes[$name];
         }

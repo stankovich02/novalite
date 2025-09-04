@@ -92,7 +92,7 @@ class Session
     public function flash(string $key, $value) : void
     {
         $_SESSION['flash_' . $key] = $value;
-        $_SESSION['flash_keys'][] = $key; // Dodajemo ključ u listu flash ključeva
+        $_SESSION['flash_keys'][] = $key;
     }
 
     public function getFlash(string $key, $default = null)
@@ -102,7 +102,6 @@ class Session
         return $value;
     }
 
-    // Dodajemo metode za upravljanje greškama i old podacima
     public function setErrors($errors) : void
     {
         $_SESSION['errors'] = $errors;
@@ -136,21 +135,16 @@ class Session
         unset($_SESSION['_old_timestamp']);
     }
 
-    // Proverava da li je stranica osvežena (refresh)
     public function isPageRefresh() : bool
     {
         $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 
-        // Samo za GET zahteve proveravamo refresh
         if ($method === 'GET') {
-            // Proveravamo da li imamo token koji označava da je prethodna validacija bila neuspešna
             if (isset($_SESSION['_form_validation_failed']) && $_SESSION['_form_validation_failed'] === true) {
-                // Resetujemo flag
                 unset($_SESSION['_form_validation_failed']);
-                return false; // Ovo NIJE refresh, već prikaz grešaka nakon neuspešne validacije
+                return false;
             }
 
-            // Ako imamo greške/old podatke BEZ validation flag-a, to je verovatno refresh
             if (isset($_SESSION['errors']) || isset($_SESSION['old'])) {
                 return true;
             }
@@ -159,28 +153,23 @@ class Session
         return false;
     }
 
-    // Označava da je validacija neuspešna i da treba prikazati greške
     public function markValidationFailed() : void
     {
         $_SESSION['_form_validation_failed'] = true;
     }
 
-    // Automatski briše flash podatke na početku zahteva
     private function cleanupFlashData() : void
     {
-        // Briši greške i old podatke samo ako je stvarno refresh
         if ($this->isPageRefresh()) {
             $this->clearFormData();
         }
 
-        // Standardno brisanje flash podataka
         foreach ($_SESSION as $key => $value) {
             if (str_starts_with($key, 'flash_')) {
                 unset($_SESSION[$key]);
             }
         }
 
-        // Očisti listu flash ključeva
         unset($_SESSION['flash_keys']);
     }
 
@@ -201,7 +190,6 @@ class Session
 
     public function __destruct()
     {
-        // Ne brišemo flash podatke u destruktoru jer to radimo na početku
-        // zahteva u cleanupFlashData() metodi
+
     }
 }
