@@ -72,6 +72,7 @@ class Response
     private array $data = [];
     private bool $isJson = false;
     private string $content;
+    private int $statusCode = 200;
     public function __construct(string $content = '', int $status = 200)
     {
         $this->content = $content;
@@ -87,6 +88,7 @@ class Response
     }
     public function sendResponse() : void
     {
+        http_response_code($this->statusCode);
         if(!$this->isJson){
             echo $this->content;
         }
@@ -96,7 +98,7 @@ class Response
     }
     public function setStatusCode(int $code) : self
     {
-        http_response_code($code);
+        $this->statusCode = $code;
 
         return $this;
     }
