@@ -217,7 +217,7 @@ abstract class Model
             foreach ($row as $key => $value) {
                 $instance->{$key} = $value;
             }
-            $instance->hideHiddenFields($instance);
+            $instance = $instance->hideHiddenFields($instance);
             $instances[] = $instance->attributes;
         }
         return $instances;
@@ -228,7 +228,6 @@ abstract class Model
         foreach ($instance->hidden as $hiddenField) {
             unset($attributes[$hiddenField]);
         }
-
 
         $instance->attributes = $attributes;
 

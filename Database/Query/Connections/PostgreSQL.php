@@ -879,8 +879,7 @@ class PostgreSQL implements QueryBuilderInterface
                 }
             }
         }
-        $instance = $this->hideHiddenFields($instance);
-        return $instance;
+        return $this->hideHiddenFields($instance);
     }
     public function insert(array $data) : bool
     {
