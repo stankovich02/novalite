@@ -164,12 +164,6 @@ class Session
             $this->clearFormData();
         }
 
-        /*foreach ($_SESSION as $key => $value) {
-            if (str_starts_with($key, 'flash_')) {
-                unset($_SESSION[$key]);
-            }
-        }*/
-
         unset($_SESSION['flash_keys']);
     }
 
