@@ -135,10 +135,18 @@ abstract class Model
         }
         if ($this->exists) {
             $params = array_map(fn($item) => "$item = :$item", array_keys($this->attributes));
+            if($this->timestamps) {
+                $params[] = self::UPDATED_AT . " = :" . self::UPDATED_AT;
+                $this->attributes[self::UPDATED_AT] = date('Y-m-d H:i:s');
+            }
             $sql = "UPDATE $this->table SET ".implode(',', $params)." WHERE {$this->primaryKey} = :{$this->primaryKey}";
         }
         else {
             $params = array_map(fn($item) => ":$item", array_keys($this->attributes));
+            if($this->timestamps) {
+                $this->attributes[self::CREATED_AT] = date('Y-m-d H:i:s');
+                $params[] = ":" . self::CREATED_AT;
+            }
             $sql = "INSERT INTO $this->table (".implode(',', array_keys($this->attributes)).") VALUES (".implode(',', $params).")";
         }
         $statement = self::$pdo->prepare($sql);

@@ -841,6 +841,7 @@ class MySQL implements QueryBuilderInterface
         $rows = $statement->fetchAll();
         if($this->instance === null) {
             return $rows;
+
         }
         if(count($rows) === 0) {
             return [];
